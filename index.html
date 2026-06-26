@@ -93,10 +93,19 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
 /* Print */
 @media print{
-  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check{display:none!important}
+  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.corner-top-left,.corner-bottom-right,.back-btn{display:none!important}
   body{background:#fff;color:#000;font-size:12pt}
   .quest-section{box-shadow:none;border:1px solid #ccc;break-inside:avoid;margin-bottom:8px;padding:10px}
+  .quest-section h3{font-size:13pt;margin-bottom:4px}
   .offline-item{font-size:11pt}
+  .exercise-block{border:none;padding:4px 0;margin:2px 0}
+  .exercise-block .q{font-size:10pt;margin-bottom:2px}
+  .exercise-block .opts,.exercise-block input,.exercise-block .btn-check,.exercise-block .feedback{display:none!important}
+  .level-day-badge{border:1px solid #ccc;font-size:10pt}
+  h2{font-size:14pt}
+  #page-level{display:block!important}
+  .page{display:block!important}
+  @page{margin:1.5cm}
 }
 
 /* Tablet */
@@ -933,7 +942,7 @@ function openLevel(day){
     lv.off.forEach((ot,oi)=>{
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
-    html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本节线下练习</button></div>`;
+    html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本节课文资料</button></div>`;
   }
 
   // Complete button
