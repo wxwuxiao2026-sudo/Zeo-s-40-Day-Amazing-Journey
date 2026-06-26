@@ -1500,6 +1500,11 @@ function showWelcome(){
 
 // === INIT ===
 function init(){
+  // Global error display
+  window.onerror=function(msg,url,line){
+    var e=document.getElementById('page-map');
+    if(e)e.innerHTML='<div style="padding:20px;color:red;text-align:center"><b>页面出错</b><br><small>'+msg+'<br>行:'+line+'</small><br><br><button onclick="localStorage.removeItem(\'studyquest40\');location.reload();" style="padding:10px 20px">🔄 清除数据并刷新</button></div>';
+  };
   // ?reset = clear ALL progress (use with caution)
   if(location.search.includes('reset')){
     if(confirm('⚠️ 这将清除Zoe的所有学习进度（星光、纪念章、完成记录），确定吗？')){
