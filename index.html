@@ -239,11 +239,11 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
       <div class="card-title">新的奇妙旅程，我们一起探索</div>
       <div class="card-text">
         <p>现在，你要回到我们自己的国家啦，有一点点期待，也有一点点紧张——对吗？这太正常了，换作是谁都一样。</p>
-        <p>所以接下来这<span class="hl">40天</span>，我们想陪你一起，慢慢开启一段新的奇妙旅程。</p>
-        <p>它不是考试，不是任务——只是一段小小的前行。你可能会遇见一首让你心怦怦跳的古诗，可能会解开一道让你忍不住"哇"出声的数学题，当然，也可能会碰到让你皱起眉头的难题。</p>
+        <p>接下来这<span class="hl">40天</span>，我们想陪你一起，开启一段新的奇妙旅程。</p>
+        <p>它不是考试，不是任务，只是一段小小的前行。你会遇见一首让你心怦怦跳的古诗，会解开一道让你忍不住"哇"出声的数学题，当然，也可能会碰到让你皱起眉头的难题。</p>
         <p><span class="hl">没关系的。</span>真的没关系。</p>
-        <p>如果遇到怎么也想不明白的地方，试着对自己说："我只是<span class="hl">还没</span>学会，不是学不会。"你身后还有爸爸妈妈永远的陪伴和支持。</p>
-        <p>如果哪天你累了、不想做了，就停下来，告诉我们。<span class="warm">我们不会催你。</span></p>
+        <p>如果遇到怎么也想不明白的地方，就对自己说："我只是<span class="hl">还没</span>学会，不是学不会。"你身后还有爸爸妈妈永远的陪伴支持。</p>
+        <p>如果哪天你累了、不想做了，就停下来休息一下，<span class="warm">我们不会催你。</span></p>
         <p>你已经独自走过那么远的路了。<br>这40天，不过是你美好生活中的一段小小的别样的风景。</p>
       </div>
     </div>
@@ -291,7 +291,7 @@ function _showCard(n){
   var nx=document.getElementById('wNextBtn');if(nx)nx.style.display=n>=3?'none':'inline-block';
   var s=document.getElementById('wStartBtn');if(s)s.style.display=n>=3?'inline-block':'none';
 }
-function welcomeNext(){document.getElementById('wNextBtn').textContent='✓已点击';_showCard(_wc+1);}
+function welcomeNext(){_showCard(_wc+1);}
 function welcomePrev(){_showCard(_wc-1);}
 function startJourney(){
   try{state.seenIntro=true;saveState();}catch(e){}
