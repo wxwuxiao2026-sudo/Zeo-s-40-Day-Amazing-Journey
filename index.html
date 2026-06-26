@@ -1462,6 +1462,13 @@ function showWelcome(){
 
 // === INIT ===
 function init(){
+  // URL reset: add ?reset to the URL to clear all progress
+  if(location.search.includes('reset')){
+    localStorage.removeItem('studyquest40');
+    state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+    saveState();
+    history.replaceState({},'',location.pathname);
+  }
   // Check if yesterday's streak needs reset
   if(state.lastCompleteDate){
     const last=new Date(state.lastCompleteDate);
