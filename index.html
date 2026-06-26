@@ -297,13 +297,48 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
         <p style="text-align:right;font-size:.85rem;color:#c4a882;margin-top:16px;line-height:1.8">永远爱你的<br>爸爸妈妈<br>2026年夏天</p>
       </div>
     </div>
+
+    <!-- Card 4: Schedule -->
+    <div class="welcome-card" id="wCard4">
+      <div class="step-num">📅 学习日程</div>
+      <div class="card-emoji">⏰</div>
+      <div class="card-title">每天可以这样安排</div>
+      <div class="card-text">
+        <p style="text-align:left;font-size:.85rem;line-height:2.2;background:#fdfaf5;padding:10px 14px;border-radius:10px">
+          🌅 <b>上午（约2.5小时）</b><br>
+          ① 🃏 闪卡复习（10分钟）<br>
+          ② 📖 今日知识点 + 📚 课本内容（20分钟）<br>
+          ③ 🎬 视频课程（15分钟）<br>
+          ④ ✏️ 在线练习 + 📝 线下任务（约1.5小时）<br>
+          <br>
+          🌤 <b>下午（约1小时）</b><br>
+          ⑤ ✏️ 写作 / 🔢 应用题<br>
+          ⑥ 🔬 科学 / 🎬 今日推荐纪录片<br>
+          <br>
+          📅 <b>每周节奏</b><br>
+          周一至周五：每天探索一站<br>
+          周六：复习 + 周测试<br>
+          周日：🎉 完全休息！<br>
+          <br>
+          🗺️ <b>40天四阶段</b><br>
+          🌊 Day 1-10 海边拾贝 · 🌲 Day 11-20 林间采风<br>
+          🏔 Day 21-30 山巅远眺 · 🌟 Day 31-40 整装待发<br>
+          <br>
+          💡 <b>小贴士</b><br>
+          · 每35分钟站起来远眺一次<br>
+          · 达标20分/天即可，不用追求满分<br>
+          · 累了就停，休息日真休息<br>
+          · 积分可以兑换奖励哦！
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- Navigation -->
   <div class="welcome-nav">
     <button id="wPrevBtn" onclick="welcomePrev()" style="display:none">◂ 上一封</button>
     <div class="welcome-dots">
-      <div class="dot on" id="dot1"></div><div class="dot" id="dot2"></div><div class="dot" id="dot3"></div>
+      <div class="dot on" id="dot1"></div><div class="dot" id="dot2"></div><div class="dot" id="dot3"></div><div class="dot" id="dot4"></div>
     </div>
     <button id="wNextBtn" onclick="welcomeNext()">下一封 ▸</button>
     <button id="wStartBtn" onclick="startJourney()" class="primary" style="display:none">✨ 出发！开始旅程</button>
@@ -317,13 +352,13 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 var _wc=1;
 function _showCard(n){
   _wc=n;
-  for(var i=1;i<=3;i++){
+  for(var i=1;i<=4;i++){
     var c=document.getElementById('wCard'+i);if(c)c.style.display=i===n?'block':'none';
     var d=document.getElementById('dot'+i);if(d)d.className='dot'+(i===n?' on':'');
   }
   var p=document.getElementById('wPrevBtn');if(p)p.style.display=n<=1?'none':'inline-block';
-  var nx=document.getElementById('wNextBtn');if(nx)nx.style.display=n>=3?'none':'inline-block';
-  var s=document.getElementById('wStartBtn');if(s)s.style.display=n>=3?'inline-block':'none';
+  var nx=document.getElementById('wNextBtn');if(nx)nx.style.display=n>=4?'none':'inline-block';
+  var s=document.getElementById('wStartBtn');if(s)s.style.display=n>=4?'inline-block':'none';
 }
 function welcomeNext(){_showCard(_wc+1);}
 function welcomePrev(){_showCard(_wc-1);}
