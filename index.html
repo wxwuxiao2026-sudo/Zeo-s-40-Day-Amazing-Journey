@@ -95,20 +95,18 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 @media print{
   header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.corner-top-left,.corner-bottom-right,.back-btn,.level-day-badge,#btn-complete{display:none!important}
   body{background:#fff;color:#000;font-size:12pt}
+  main{padding:0;max-width:none}
+  .page{display:none!important}
+  #page-level{display:block!important}
   .quest-section{box-shadow:none;border:1px solid #ddd;break-inside:avoid;margin-bottom:10px;padding:12px}
   .quest-section h3{font-size:13pt;margin-bottom:6px;color:#333}
   .quest-section h3 .emoji,.quest-section h3 .arrow{display:none}
-  .offline-item{display:none!important}
-  .btn-print{display:none!important}
   .exercise-block{border:none;padding:4px 0;margin:2px 0;break-inside:avoid}
   .exercise-block .q{font-size:10pt;margin-bottom:2px}
   .exercise-block .q .subj{display:inline;font-size:8pt;padding:1px 4px;border-radius:3px}
-  .exercise-block .opts,.exercise-block input[type=text],.exercise-block .btn-check,.exercise-block .feedback,.exercise-block .btn-check.retry{display:none!important}
+  .exercise-block .opts,.exercise-block input[type=text],.exercise-block .btn-check,.exercise-block .feedback{display:none!important}
   .tb-content{display:block!important;max-height:none!important;border:none!important;background:#fff!important;font-size:10pt}
   h2{font-size:14pt;margin-bottom:8px}
-  #page-level{display:block!important}
-  .page{display:block!important}
-  #page-level > div:first-child{display:none!important}
   @page{margin:1.5cm}
   .no-print{display:none!important}
 }
