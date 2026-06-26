@@ -1496,6 +1496,17 @@ function skipWelcome(){
 function showWelcome(){
   const overlay=document.getElementById('welcomeOverlay');
   if(overlay){overlay.style.display='flex';overlay.style.opacity='1';showCard(1);}
+  bindWelcomeButtons();
+}
+function bindWelcomeButtons(){
+  const prev=document.getElementById('wPrevBtn');
+  const next=document.getElementById('wNextBtn');
+  const start=document.getElementById('wStartBtn');
+  const ghost=document.querySelector('.welcome-nav button.ghost');
+  if(prev){prev.onclick=welcomePrev;}
+  if(next){next.onclick=welcomeNext;}
+  if(start){start.onclick=startJourney;}
+  if(ghost){ghost.onclick=skipWelcome;}
 }
 
 // === INIT ===
