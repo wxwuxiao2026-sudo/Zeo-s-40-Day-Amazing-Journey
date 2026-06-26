@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>✨ Zoe的40天奇妙旅程</title>
+<style>
+:root{--bg:#fef9f2;--card:#fff;--text:#4a3f35;--accent:#f08c4a;--correct:#66bb6a;--wrong:#ef7a7a;--gold:#f9a825;--sea:#5c9ce6;--forest:#66bb6a;--mountain:#ab7fc1;--boss:#ef7a7a;--locked:#ccc;--radius:18px;--shadow:0 2px 16px rgba(0,0,0,.06);--font:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;min-height:100vh;display:flex;flex-direction:column}
+header{background:linear-gradient(135deg,#3d3226,#5c4a36);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+header h1{font-size:1.2rem;font-weight:700}
+header .stats{display:flex;gap:14px;font-size:.85rem}
+header .stats span{background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;white-space:nowrap}
+nav.tabs{display:flex;background:#fff;border-bottom:1px solid #e0d8cc;position:sticky;top:48px;z-index:9;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav.tabs button{flex:1 0 auto;padding:12px 16px;border:none;background:none;font-size:.9rem;font-weight:600;color:#999;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;min-width:fit-content}
+nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
+.page{display:none}
+.page.active{display:block}
+
+/* Map */
+.stage-label{font-weight:700;margin:16px 0 6px;font-size:.95rem;display:flex;align-items:center;gap:6px}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px}
+.level-node{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;user-select:none}
+.level-node.done{background:#e8f5e9;border-color:var(--correct);color:#2e7d32}
+.level-node.current{background:#fff3e0;border-color:var(--accent);color:var(--accent);animation:pulse 2s infinite}
+.level-node.locked{background:#f5f5f5;border-color:#e0e0e0;color:var(--locked);cursor:not-allowed}
+.level-node .day{font-size:.7rem;opacity:.7}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,131,42,.4)}50%{box-shadow:0 0 0 8px rgba(232,131,42,0)}}
+.level-node .star{position:absolute;top:-4px;right:-4px;font-size:.8rem}
+
+/* Level Detail */
+.quest-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.quest-section h3{font-size:1rem;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.quest-section h3 .emoji{font-size:1.3rem}
+.flashcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.flashcard{background:#fef9e7;border:1px solid #f0e4b8;border-radius:10px;padding:12px;text-align:center;cursor:pointer;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s;user-select:none}
+.flashcard.flipped{background:#e8f5e9;border-color:#a5d6a7}
+.video-link{display:block;padding:10px 14px;background:#f0f4ff;border-radius:8px;margin:6px 0;text-decoration:none;color:var(--sea);font-weight:600;font-size:.9rem;border:1px solid #d0d8f0;transition:.2s}
+.video-link:active{background:#d0d8f0}
+.exercise-block{border:1px solid #e8e0d8;border-radius:10px;padding:12px;margin:8px 0;transition:.2s}
+.exercise-block.correct{border-color:var(--correct);background:#f1f8e9}
+.exercise-block.wrong{border-color:var(--wrong);background:#fef0f0}
+.exercise-block .q{font-weight:600;margin-bottom:8px;font-size:.9rem}
+.exercise-block .q .subj{font-size:.7rem;padding:2px 6px;border-radius:10px;margin-right:6px;color:#fff}
+.exercise-block .q .subj.ch{background:var(--forest)}
+.exercise-block .q .subj.ma{background:var(--sea)}
+.exercise-block .opts label{display:block;padding:6px 10px;margin:4px 0;border-radius:6px;cursor:pointer;font-size:.9rem;transition:.1s}
+.exercise-block .opts label:hover{background:#f5f0e8}
+.exercise-block .opts input{margin-right:8px}
+.exercise-block input[type=text]{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:1rem;margin:4px 0}
+.exercise-block input[type=text]:focus{border-color:var(--accent);outline:none}
+.exercise-block .feedback{display:none;margin-top:8px;padding:8px;border-radius:6px;font-size:.85rem}
+.exercise-block .feedback.show{display:block}
+.exercise-block .feedback.ok{background:#e8f5e9;color:#2e7d32}
+.exercise-block .feedback.no{background:#ffebee;color:#c62828}
+.exercise-block .btn-check{padding:6px 16px;border:none;border-radius:20px;font-size:.85rem;cursor:pointer;font-weight:600;margin-top:6px}
+.exercise-block .btn-check.submit{background:var(--accent);color:#fff}
+.exercise-block .btn-check.retry{background:#e0e0e0;color:#666;margin-left:6px}
+.offline-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0e8d8;font-size:.9rem}
+.offline-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.btn-primary{display:block;width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:1.1rem;font-weight:700;cursor:pointer;margin:12px 0;transition:.2s}
+.btn-primary:active{transform:scale(.98);opacity:.9}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-print{display:block;width:100%;padding:12px;background:#f5f0e8;border:2px dashed #d0c8b8;border-radius:var(--radius);font-size:.95rem;cursor:pointer;margin:8px 0;text-align:center;font-weight:600}
+.result-banner{text-align:center;padding:20px;border-radius:var(--radius);margin:12px 0;font-size:1.1rem;font-weight:700}
+.result-banner.pass{background:#e8f5e9;color:#2e7d32}
+.result-banner.fail{background:#fff3e0;color:#e65100}
+
+/* Parent Dashboard */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);text-align:center}
+.stat-card .val{font-size:2rem;font-weight:800;color:var(--accent)}
+.stat-card .lbl{font-size:.8rem;color:#999;margin-top:2px}
+.error-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.error-table th,.error-table td{padding:8px;text-align:left;border-bottom:1px solid #eee}
+.error-table th{background:#faf8f4;font-weight:700}
+.progress-bar{height:8px;background:#e0d8cc;border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s}
+
+/* Achievement */
+.badge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.badge-card{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.badge-card.earned{border:2px solid var(--gold)}
+.badge-card.locked{opacity:.4;filter:grayscale(1)}
+.badge-card .icon{font-size:3rem}
+.badge-card .name{font-weight:700;margin:4px 0;font-size:.9rem}
+.badge-card .cond{font-size:.75rem;color:#999}
+
+/* Print */
+@media print{
+  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check{display:none!important}
+  body{background:#fff;color:#000;font-size:12pt}
+  .quest-section{box-shadow:none;border:1px solid #ccc;break-inside:avoid;margin-bottom:8px;padding:10px}
+  .offline-item{font-size:11pt}
+}
+
+/* Tablet */
+@media(min-width:768px){
+  .level-grid{grid-template-columns:repeat(10,1fr)}
+  main{padding:24px}
+  header h1{font-size:1.4rem}
+  .flashcard-grid{grid-template-columns:1fr 1fr}
+}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 24px;border-radius:30px;font-size:.9rem;z-index:999;animation:fadeInUp .3s}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Confetti */
+.confetti{position:fixed;pointer-events:none;z-index:998}
+.confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 1.5s ease-out forwards}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+
+/* Welcome Overlay */
+.welcome-overlay{position:fixed;inset:0;background:linear-gradient(170deg,#fdf6ee 0%,#fef3e5 25%,#fef8f0 50%,#fdf2e6 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;padding:20px}
+.welcome-overlay::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(180,160,140,.08) 28px,rgba(180,160,140,.08) 29px);pointer-events:none;z-index:0}
+.welcome-cards{position:relative;z-index:1;max-width:480px;width:100%}
+.welcome-card{display:none;background:linear-gradient(180deg,#fffefb 0%,#fffb f5 100%);border-radius:20px;padding:32px 24px 24px;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.04);text-align:center;animation:cardIn .5s ease-out;position:relative;overflow:hidden}
+.welcome-card::after{content:'';position:absolute;top:16px;right:20px;width:44px;height:44px;border:2px dashed #d4c4a8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#c4a882;pointer-events:none}
+.welcome-card.active{display:block}
+@keyframes cardIn{0%{opacity:0;transform:translateX(40px)}100%{opacity:1;transform:translateX(0)}}
+.welcome-card .step-num{font-size:.7rem;color:#c4a882;letter-spacing:3px;margin-bottom:8px}
+.welcome-card .card-emoji{font-size:2.8rem;margin:8px 0;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.welcome-card .card-title{font-size:1.15rem;font-weight:700;color:#5a4a3a;margin:8px 0 6px}
+.welcome-card .card-text{text-align:left;font-size:.9rem;line-height:2;color:#6b5d50;margin:12px 0;padding:0 4px;font-family:'PingFang SC','STKaiti','KaiTi',var(--font)}
+.welcome-card .card-text .hl{color:#e8832a;font-weight:700}
+.welcome-card .card-text .warm{background:linear-gradient(180deg,transparent 60%,#fef0d8 60%);padding:0 2px}
+.welcome-nav{position:relative;z-index:2;display:flex;align-items:center;gap:20px;margin-top:18px}
+.welcome-dots{display:flex;gap:8px}
+.welcome-dots .dot{width:8px;height:8px;border-radius:50%;background:#d4c4a8;transition:all .3s}
+.welcome-dots .dot.on{background:#e8832a;width:20px;border-radius:10px}
+.welcome-nav button{border:none;background:rgba(255,255,255,.8);color:#8b7355;font-size:.9rem;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:600;transition:all .2s;backdrop-filter:blur(4px)}
+.welcome-nav button:active{background:#fff;transform:scale(.96)}
+.welcome-nav button.primary{background:linear-gradient(135deg,#f08c4a,#e8783e);color:#fff;padding:10px 32px;box-shadow:0 3px 12px rgba(240,140,74,.35)}
+.welcome-nav button.ghost{background:transparent;color:#bbb;font-size:.8rem;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- Welcome Letter — 3 Cards -->
+<div class="welcome-overlay" id="welcomeOverlay">
+
+  <!-- Card 1: Your Wings -->
+  <div class="welcome-cards">
+    <div class="welcome-card active" id="wCard1">
+      <div class="step-num">📮 第一封</div>
+      <div class="card-emoji">✈️</div>
+      <div class="card-title">亲爱的Zoe，你有一双隐形的翅膀</div>
+      <div class="card-text">
+        <p>亲爱的<span class="hl">Zoe</span>，你好呀。</p>
+        <p>写这封信的时候，我们回想到了三年前的那一幕——那天，你在<span class="warm">天府机场</span>，背着小小的书包，带着自信和好奇的微笑，勇敢的道别，踏上了新的旅程。</p>
+        <p>那个画面，我们记到现在。</p>
+        <p>你的眼睛里，装着满满的<span class="hl">勇敢</span>，和对这个世界<span class="hl">毫无保留的好奇</span>。</p>
+        <p>三年过去了。你在加拿大学会了用另一种语言做梦，习惯了冰上的翩翩起舞，交到了地球另一端的朋友。这些经历，一点都不是"需要补上的缺口"——它们是你长出的一双<span class="hl">翅膀</span>，谁也拿不走，也是你一生中最美好的回忆。</p>
+      </div>
+    </div>
+
+    <!-- Card 2: New Journey Together -->
+    <div class="welcome-card" id="wCard2">
+      <div class="step-num">📮 第二封</div>
+      <div class="card-emoji">🗺️</div>
+      <div class="card-title">新的奇妙旅程，我们一起探索</div>
+      <div class="card-text">
+        <p>现在，你要回到我们自己的国家啦，有一点点期待，也有一点点紧张——对吗？这太正常了，换作是谁都一样。</p>
+        <p>所以接下来这<span class="hl">40天</span>，我们想陪你一起，慢慢开启一段新的奇妙旅程。</p>
+        <p>它不是考试，不是任务——只是一段小小的前行。你可能会遇见一首让你心怦怦跳的古诗，可能会解开一道让你忍不住"哇"出声的数学题，当然，也可能会碰到让你皱起眉头的难题。</p>
+        <p><span class="hl">没关系的。</span>真的没关系。</p>
+        <p>如果遇到怎么也想不明白的地方，试着对自己说："我只是<span class="hl">还没</span>学会，不是学不会。"你身后还有爸爸妈妈永远的陪伴和支持。</p>
+        <p>如果哪天你累了、不想做了，就停下来，告诉我们。<span class="warm">我们不会催你。</span></p>
+        <p>你已经独自走过那么远的路了。<br>这40天，不过是你美好生活中的一段小小的别样的风景。</p>
+      </div>
+    </div>
+
+    <!-- Card 3: We Are Always Here -->
+    <div class="welcome-card" id="wCard3">
+      <div class="step-num">📮 第三封</div>
+      <div class="card-emoji">💛</div>
+      <div class="card-title">你慢慢的勇敢前行，我们一直都在</div>
+      <div class="card-text">
+        <p>Zoe，爸爸妈妈不需要你每天都是满分。</p>
+        <p>我们想看到的，是你<span class="hl">愿意试一试</span>——哪怕只是一小步。跌倒了大不了拍拍土，觉得难了大不了歇一歇，明天再来。</p>
+        <p>你知道吗？三年前在机场的那个你，和现在正准备出发的你，是同一个人——那个<span class="warm">勇敢的、好奇的、不怕未知</span>的小孩，一直都没有离开过。</p>
+        <p>所以，带上你的翅膀，慢慢地、稳稳地往前走。</p>
+        <p style="text-align:center;margin-top:16px;font-size:1.05rem;line-height:2.2">无论你走到哪里，<br>回头的时候，<br><span class="hl">爸爸妈妈永远都在你身后。</span></p>
+        <p style="text-align:right;font-size:.85rem;color:#c4a882;margin-top:16px;line-height:1.8">永远爱你的<br>爸爸妈妈<br>2026年夏天</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="welcome-nav">
+    <button id="wPrevBtn" onclick="welcomePrev()" style="display:none">← 上一封</button>
+    <div class="welcome-dots">
+      <div class="dot on" id="dot1"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+    </div>
+    <button id="wNextBtn" onclick="welcomeNext()">下一封 →</button>
+    <button id="wStartBtn" onclick="startJourney()" class="primary" style="display:none">✨ 出发！开始旅程</button>
+    <button class="ghost" onclick="skipWelcome()">下次再看</button>
+  </div>
+
+</div>
+
+<header>
+  <h1>✨ Zoe的40天奇妙旅程</h1>
+  <div class="stats">
+    <span>🌟 <b id="hdr-points">0</b></span>
+    <span>🔥 <b id="hdr-streak">0</b>天</span>
+    <span>🎖️ <b id="hdr-badges">0</b></span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-page="map">🗺️ 旅程地图</button>
+  <button data-page="level" id="tab-level" style="display:none">📍 今日探索</button>
+  <button data-page="errors">💭 成长印记</button>
+  <button data-page="achievements">🎖️ 纪念章</button>
+  <button data-page="parent">💌 爸爸妈妈的话</button>
+</nav>
+
+<main>
+  <div id="page-map" class="page active"></div>
+  <div id="page-level" class="page"></div>
+  <div id="page-errors" class="page"></div>
+  <div id="page-achievements" class="page"></div>
+  <div id="page-parent" class="page"></div>
+</main>
+
+<script>
+// ========== CONTENT DATA ==========
+// Format: [day, title, stage, flashcardChinese, flashcardMath,
+//  [[videoTitle,searchUrl],...],
+//  [[type,subject,question,options|answer,correctAnswer,explanation],...],
+//  [[offlineTask,description],...]]
+
+const STAGES=["🌊 第一站：海边拾贝","🌲 第二站：林间采风","🏔 第三站：山巅远眺","🌟 第四站：整装待发"];
+const STAGE_EMOJI=["🌊","🌲","🏔","🌟"];
+
+const LEVELS=[
+// DAY 1 ============================================
+{d:1,t:"自然景观 + 大数计算",s:0,
+fc:"",fm:"",
+v:[
+  ["《观潮》第一课时·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=观潮+四年级+语文"],
+  ["三位数乘两位数竖式·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=三位数乘两位数+四年级+数学"],
+  ["B站备选：观潮公开课","https://search.bilibili.com/all?keyword=小学语文+观潮+公开课"],
+  ["B站备选：三位数乘两位数","https://search.bilibili.com/all?keyword=四年级数学+三位数乘两位数+竖式"]
+],
+q:[
+  ["choice","ch","《题西林壁》的作者是？","苏轼|李白|杜甫|王安石",0,"《题西林壁》是宋代苏轼游览庐山时所作。"],
+  ["fill","ch","不识庐山真面目，________。","只缘身在此山中","当局者迷，旁观者清——看问题要跳出局部看整体。"],
+  ["choice","ch","'人声鼎沸'中'鼎'的意思是？","古代煮东西的器物|山峰|顶部|热闹",0,"鼎是古代的大锅，水在鼎里沸腾——比喻人声嘈杂。"],
+  ["truefalse","ch","'薄'在'薄饼'中读bó。","错","薄饼báo(口语)，单薄bó(书面)，薄荷bò(植物名)。"],
+  ["fill","ma","25 × 4 = ?","100","25×4=100是简便运算的黄金搭档。"],
+  ["fill","ma","125 × 8 = ?","1000","125×8=1000，和25×4=100一样重要。"],
+  ["choice","ma","下列哪个算式用了乘法分配律？","(3+5)×4=3×4+5×4|25×4=100|125×8=1000|36÷6=6",0,"分配律：两数和乘一个数=分别乘再相加。"],
+  ["fill","ma","236 × 47 = ?（提示：先估算，再精算）","11092","236×47 = 236×(50-3) = 11800-708 = 11092。检验：236×40=9440, 236×7=1652, 9440+1652=11092。"]
+],
+off:[
+  ["生字听写","请家长念读18个生字：潮称盐笼罩蒙薄雾昂沸贯旧恢灿烂竿茫桨。错字订正3遍。"],
+  ["古诗默写","默写《题西林壁》，对照课本自查。"],
+  ["写作训练","写一处你印象深刻的自然风景，120字以上。按时间或空间顺序写。"],
+  ["竖式计算","236×47 和 7812÷42，写出完整竖式，注意数位对齐和进位标记。"]
+]},
+
+// DAY 2 ============================================
+{d:2,t:"观察发现 + 大数的认识",s:0,
+fc:"18张生字卡(Day1)+《题西林壁》。多音字：薄báo/bó/bò。25×4=?,125×8=?",
+fm:"口述：公顷=?m²。25×4=?,125×8=?",
+v:[
+  ["《爬山虎的脚》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=爬山虎的脚+四年级+语文"],
+  ["大数的认识·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=亿以内数的认识+四年级+数学"],
+  ["B站备选：爬山虎的脚","https://search.bilibili.com/all?keyword=爬山虎的脚+公开课"],
+  ["B站备选：大数的认识","https://search.bilibili.com/all?keyword=四年级数学+大数的认识+分级"]
+],
+q:[
+  ["choice","ch","《游山西村》的作者是？","陆游|苏轼|李白|王安石",0,"陆游被罢官后闲居家乡时所作。"],
+  ["fill","ch","山重水复疑无路，________。","柳暗花明又一村","比喻在困境中坚持下去就会出现转机。"],
+  ["choice","ch","'梢'和'稍'的区别是？","梢=木字旁(树梢)，稍=禾字旁(稍微)|意思完全相同|梢是动词|稍是名词",0,"木字旁与树木有关，禾字旁与庄稼/程度有关。"],
+  ["truefalse","ch","'腊'和'蜡'可以通用。","错","腊(月字旁)：腊月/腊肉；蜡(虫字旁)：蜡烛/蜡笔。"],
+  ["fill","ma","38506000 读作：________","三千八百五十万六千","从右往左每4位一级：3850|6000，万级读作三千八百五十万，个级读作六千。"],
+  ["fill","ma","1 公顷 = ____ 平方米","10000","1公顷=100m×100m的正方形面积。"],
+  ["fill","ma","1 平方千米 = ____ 公顷","100","1km²=1000m×1000m=1000000m²=100公顷。"],
+  ["choice","ma","故宫约72万平方米，合多少公顷？","72公顷|720公顷|7.2公顷|7200公顷",0,"10000m²=1hm²，720000÷10000=72。"]
+],
+off:[
+  ["生字听写","隙耀梢寂寞腊浑疑虎占铺均叠茎柄触痕逐。18字。"],
+  ["古诗默写","默写《游山西村》。"],
+  ["写作训练","观察家里一盆植物或窗外的树，写100字观察笔记（颜色/形状/大小）。"],
+  ["大数练习","写出：二千零八十万零五百 = ________。五亿零六百万八千 = ________。"]
+]},
+
+// DAY 3 ============================================
+{d:3,t:"动物描写 + 运算定律",s:0,
+fc:"生字卡 Day2(18张)+《游山西村》。形近字：梢/稍/悄、浑/挥/辉。",
+fm:"口述乘法分配律公式。25×36简便算法。",
+v:[
+  ["《猫》·老舍·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=猫+老舍+四年级+语文"],
+  ["乘法分配律·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=乘法分配律+四年级+数学"],
+  ["B站备选：老舍《猫》","https://search.bilibili.com/all?keyword=老舍+猫+公开课"]
+],
+q:[
+  ["choice","ch","《黄鹤楼送孟浩然之广陵》中'之'的意思是？","去、往|的|他|到达",0,"之=去、往。广陵=今江苏扬州。"],
+  ["fill","ch","孤帆远影碧空尽，________。","唯见长江天际流","借景抒情——通过写景表达依依不舍。"],
+  ["choice","ch","'屏息凝视'的'屏'读什么？","bǐng|píng|bìn|pín",0,"屏bǐng=抑制(屏住呼吸)；屏píng=遮挡(屏风)。"],
+  ["truefalse","ch","《猫》一课中，猫的性格特点是'老实'。","错","猫的性格特点是'古怪'——既老实又贪玩，既贪玩又尽职。"],
+  ["fill","ma","99 × 46 + 46 = ?（简便计算）","4600","提取46：46×(99+1)=46×100=4600。"],
+  ["fill","ma","102 × 45 = ?（简便计算）","4590","102=100+2：100×45+2×45=4500+90=4590。"],
+  ["choice","ma","a×b = b×a 是哪个运算定律？","乘法交换律|乘法结合律|乘法分配律|加法交换律",0,"交换律：交换位置，积不变。"],
+  ["fill","ma","25 × 36 = ?（简便）","900","25×36=25×(4×9)=(25×4)×9=100×9=900。"]
+],
+off:[
+  ["生字听写","颈郑厉剧餐倘饮侍脾蹲供邻性格凭贪职痒。18字。"],
+  ["古诗默写","默写《黄鹤楼送孟浩然之广陵》。"],
+  ["写作训练","写一种你喜欢的动物，150字以上，有外形+习性+具体事例。"],
+  ["简便运算","(1)125×7×8 (2)99×46+46 (3)102×45 (4)480÷15÷4"]
+]},
+
+// DAY 4 ============================================
+{d:4,t:"建筑文化 + 小数的意义",s:0,
+fc:"生字卡 Day3(18张)+《黄鹤楼送孟浩然之广陵》。栽/载/裁辨析。",
+fm:"口述小数性质：末尾添0或去0，大小不变。0.3=0.30对吗？",
+v:[
+  ["《长城》/《颐和园》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=长城+颐和园+四年级+语文"],
+  ["小数的意义·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=小数的意义+四年级+数学"],
+  ["B站备选","https://search.bilibili.com/all?keyword=小数的意义+四年级下册"]
+],
+q:[
+  ["choice","ch","'栽树'的'栽'和'载重'的'载'有什么区别？","栽=木字底(种植)，载=车字底(运输)|完全一样|栽是动词|载是名词",0,"栽(木)跟植物有关；载(车)跟运输有关；裁(衣)跟剪裁有关。"],
+  ["fill","ch","劝君更尽一杯酒，________。","西出阳关无故人","以酒送别是唐代习俗。'更尽'写出依依不舍。"],
+  ["truefalse","ch","书信中'此致'应该顶格写。","错","'此致'另起一行空两格，'敬礼'另起一行顶格写。"],
+  ["fill","ma","0.8 里面有____个十分之一","8","一位小数表示十分之几。"],
+  ["fill","ma","0.35 里面有____个百分之一","35","两位小数表示百分之几。"],
+  ["choice","ma","把3.6的小数点向右移一位是？","36|0.36|360|3.6",0,"小数点右移一位=×10。"],
+  ["truefalse","ma","0.3 和 0.30 大小相等。","对","小数末尾添0或去0，大小不变。但意义不同：0.3=3个0.1，0.30=30个0.01。"],
+  ["fill","ma","3.24 × 5.6 的积有____位小数","3","3.24有2位小数，5.6有1位小数，共3位。"]
+],
+off:[
+  ["生字听写","崇旋嘉砖隔屯堡垒仗扶智慧魄殿廊柱栽筑。18字。"],
+  ["古诗默写","默写《送元二使安西》。"],
+  ["写作训练","给加拿大的朋友写一封信（注意书信格式：称呼顶格、正文空两格、署名日期右下角）。150字以上。"],
+  ["小数练习","(1)比较大小：0.6__0.60 (2)3.6÷10=__ (3)0.72×100=__ (4)23.5的小数点右移一位=__"]
+]},
+
+// DAY 5 ============================================
+{d:5,t:"山水游记 + 小数乘法",s:0,
+fc:"生字卡 Day4(18张)+《送元二使安西》。栽/载/裁再练一遍。",
+fm:"小数乘法法则口述。3.24×5.6积有几位小数？",
+v:[
+  ["《桂林山水》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=桂林山水+四年级+语文"],
+  ["小数加减法·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=小数加减法+四年级+数学"],
+  ["B站备选：桂林山水排比句","https://search.bilibili.com/all?keyword=桂林山水+排比句+公开课"]
+],
+q:[
+  ["choice","ch","《独坐敬亭山》中'相看两不厌'用了什么修辞？","拟人|比喻|夸张|排比",0,"山和人在互相看——把山当成人来写。"],
+  ["fill","ch","相看两不厌，________。","只有敬亭山","诗人与山互相不厌倦——写出了人与自然的默契和诗人的孤独。"],
+  ["choice","ch","漓江的水三个特点是什么？","静、清、绿|大、深、急|蓝、冷、咸|长、宽、深",0,"漓江的水真静啊……真清啊……真绿啊……经典排比句。"],
+  ["fill","ma","12.5 × 0.8 = ?","10","125×8=1000→12.5×0.8=10。"],
+  ["fill","ma","2.5 × 3.6 × 4 = ?","36","乘法的交换律和结合律：2.5×4=10，10×3.6=36。"],
+  ["fill","ma","42.5 ÷ 3.4 = ?","12.5","把除数3.4变为34(×10)，被除数42.5也×10变为425，425÷34=12.5。"],
+  ["choice","ma","一个数(0除外)乘小于1的数，积比原数？","小|大|相等|不一定",0,"如：10×0.5=5<10。"],
+  ["truefalse","ma","'公顷'和'平方千米'的进率是100。","对","1km²=100hm²。"]
+],
+off:[
+  ["生字听写","亭庭潭螺谙澜瑕翡翠峦骆驼兀绵浙桐簇浓。18字。"],
+  ["古诗默写","默写《独坐敬亭山》。"],
+  ["写作训练","写一处山水或公园，150字以上。用排比+比喻。"],
+  ["小数竖式","(1)3.24×5.6= (2)0.78×2.3= (3)42.5÷3.4= (4)7.28÷0.56="]
+]},
+
+// DAY 6 ============================================
+{d:6,t:"📋 第一周复习日",s:0,
+fc:"本周90张生字卡全部过一遍+5首古诗卡。错字入'永久错字本'。",
+fm:"5条运算定律默写。公顷/平方千米进率。小数乘法法则。",
+v:[
+  ["四年级上册语文·第一单元复习","https://search.bilibili.com/all?keyword=四年级上册语文+第一单元复习"],
+  ["四年级·运算定律总结","https://search.bilibili.com/all?keyword=四年级+运算定律+简便计算+总结"]
+],
+q:[
+  ["fill","ch","横看成岭侧成峰，________。","远近高低各不同","《题西林壁》第一句。"],
+  ["fill","ch","________，柳暗花明又一村。","山重水复疑无路","《游山西村》名句。"],
+  ["fill","ch","孤帆远影碧空尽，________。","唯见长江天际流","《黄鹤楼送孟浩然之广陵》。"],
+  ["fill","ch","劝君更尽一杯酒，________。","西出阳关无故人","《送元二使安西》。"],
+  ["fill","ch","相看两不厌，________。","只有敬亭山","《独坐敬亭山》。"],
+  ["fill","ma","25×44 = ?（简便）","1100","25×(40+4)=25×40+25×4=1000+100=1100。"],
+  ["fill","ma","125×72 = ?（简便）","9000","125×8×9=1000×9=9000。"],
+  ["fill","ma","9.8×15 = ?（简便）","147","(10-0.2)×15=150-3=147。"],
+  ["truefalse","ma","小数点右移两位=×100。","对",""],
+  ["fill","ma","460000 = ____ 万","46","去掉末尾4个0，加'万'字。"]
+],
+off:[
+  ["生字大听写","本周90字打乱听写，错字登记到'永久错字本'。及格线≥80%。"],
+  ["古诗综合默写","本周5首古诗全部默写，对照课本改错。"],
+  ["本周写作自评","选本周写得最好的一篇，按结构3⭐+细节3⭐+语句2⭐+标点2⭐打分。"],
+  ["口算测试","限时8分钟：25×4,125×8,36×5,48×25,99×7,15×15,630÷30,480÷60,960÷40,75+89,346-178,1000-437,23+58+77,4×37×25,25×32。"]
+]},
+
+// DAY 7 ============================================
+{d:7,t:"🎉 休息日",s:0,
+fc:"今天不翻卡！真正的休息。",
+fm:"今天不做数学！真正的休息。",
+v:[
+  ["🎉 推荐：《中国唱诗班》动画","https://search.bilibili.com/all?keyword=中国唱诗班+元日+相思"],
+  ["🎉 推荐：《如果国宝会说话》","https://search.bilibili.com/all?keyword=如果国宝会说话"]
+],
+q:[],off:[
+  ["户外运动","出门运动≥1小时！骑车/踢球/游泳/爬山。"],
+  ["社交/放松","约同龄人玩，或视频连线加拿大朋友。"],
+  ["自由选择","看电影、做手工、画画……今天由你决定！"]
+]},
+
+// DAY 8 ============================================
+{d:8,t:"诚实守信 + 小数深入",s:0,
+fc:"生字卡 Day5(18张)+《独坐敬亭山》。排比句答题模板。",
+fm:"小数除法法则口述。除数是小数时怎么办？",
+v:[
+  ["《中彩那天》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=中彩那天+四年级+语文"],
+  ["小数乘法·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=小数乘法+四年级+数学"]
+],
+q:[
+  ["fill","ch","《望洞庭》：湖光秋月两相和，________。","潭面无风镜未磨","把洞庭湖比作没有打磨的铜镜。"],
+  ["fill","ch","'潭面无风镜未磨'用了什么修辞？____","比喻","古代镜子是铜制，需要打磨才能照人。未磨的铜镜=平静但朦胧的湖面。"],
+  ["fill","ma","2.5 × 4.8 × 1.25 = ?","15","2.5×4=10, 10×1.2=12, 12×1.25=15。或：2.5×4×(1.2×1.25)=10×1.5=15。"],
+  ["fill","ma","9.8 × 1.5 = ?","14.7","(10-0.2)×1.5=15-0.3=14.7。"],
+  ["fill","ma","12.5 × 8.8 = ?","110","12.5×(8+0.8)=100+10=110。"],
+  ["truefalse","ma","长方形面积公式：S=ab。","对","a=长，b=宽。"],
+  ["fill","ma","3/8 + 1/8 = ?（写分数，如1/2）","4/8","同分母分数相加：分母不变，分子相加。4/8=1/2。"],
+  ["fill","ma","5/6 - 1/6 = ?","4/6","同分母分数相减：分母不变，分子相减。4/6=2/3。"]
+],
+off:[
+  ["生字听写","擦锅碗筷锈嫌肿耽柜赚亩播浇吩咐茅榨榴。18字。"],
+  ["古诗默写","默写《望洞庭》。"],
+  ["写作训练","用说明方法介绍一种物品（文具/电子产品等），120字以上。至少用列数字+作比较。"],
+  ["小数练习","(1)3.6×2.5= (2)4.95÷1.5= (3)0.676÷0.26="]
+]},
+
+// DAY 9 ============================================
+{d:9,t:"战争与和平 + 分数初步",s:0,
+fc:"生字卡 Day8(18张)+《望洞庭》。分数意义：3/8的分数单位是？",
+fm:"分数意义。3/8的分数单位是1/8。"],
+v:[
+  ["《小英雄雨来》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=小英雄雨来+四年级+语文"],
+  ["分数的意义·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=分数的意义+五年级+数学"]
+],
+q:[
+  ["fill","ch","《忆江南》：日出江花红胜火，________。","春来江水绿如蓝","'胜'=超过，'如'=好像。不能互换。"],
+  ["fill","ch","《四时田园杂兴》：童孙未解供耕织，________。","也傍桑阴学种瓜","写儿童模仿大人劳动——天真可爱。"],
+  ["choice","ma","3/8的分数单位是？","1/8|1/3|3|8",0,"分母是几，分数单位就是几分之一。"],
+  ["fill","ma","1/2 + 1/4 = ?","3/4","通分：1/2=2/4，2/4+1/4=3/4。"],
+  ["fill","ma","3/5 - 1/10 = ?","5/10","通分：3/5=6/10，6/10-1/10=5/10=1/2。"],
+  ["truefalse","ma","把1米平均分成4段，每段是1/4米。","对","每段长度=1÷4=1/4米。"],
+  ["fill","ma","一盒巧克力24块，小明吃了3/8，吃了____块","9","24×3/8=24÷8×3=3×3=9。"],
+  ["choice","ma","分数的分子和分母同时乘/除相同的数（0除外），分数大小不变。这是分数的？","基本性质|意义|定义|公式",0,"这是分数的基本性质，约分和通分的基础。"]
+],
+off:[
+  ["生字听写","侵略筑堡党丘豪洼蔽陷拐劈贯参玫瑰嗅绒。18字。"],
+  ["古诗默写","默写《忆江南》《四时田园杂兴》。"],
+  ["写作训练","缩写练习：把Day 9阅读材料缩写成80字梗概。"],
+  ["分数练习","(1)约分：8/12= (2)通分：1/2和2/3 (3)24的3/8是多少？"]
+]},
+
+// DAY 10 ============================================
+{d:10,t:"生命感悟 + 分数运算",s:0,
+fc:"生字卡 Day9(18张)+《忆江南》《四时田园杂兴》。约分和通分的区别。",
+fm:"约分和通分的区别。1/2+1/3=?",
+v:[
+  ["《触摸春天》·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=触摸春天+四年级+语文"],
+  ["约分和通分·国家中小学智慧教育平台","https://basic.smartedu.cn/search?keyword=约分和通分+五年级+数学"]
+],
+q:[
+  ["fill","ch","《渔歌子》：青箬笠，绿蓑衣，________。","斜风细雨不须归","写出了渔夫在微风细雨中不愿归去的悠闲。"],
+  ["choice","ma","约分是把一个分数化成？","分子分母都比较小的分数|分子分母都大的分数|小数|百分数",0,"约分=化简分数，分子分母同除以最大公因数。"],
+  ["fill","ma","8/12 约分后 = ?","2/3","分子分母同除以4：8÷4=2, 12÷4=3。"],
+  ["fill","ma","2/3 + 1/6 = ?","5/6","通分：2/3=4/6，4/6+1/6=5/6。"],
+  ["fill","ma","1 - 3/5 = ?","2/5","1=5/5，5/5-3/5=2/5。"],
+  ["truefalse","ma","最简分数的分子和分母互质。","对","互质=只有公因数1。"],
+  ["fill","ma","一根绳子长12米，用去3又1/2米，又用去4又1/4米，还剩____米","4又1/4","12-3.5-4.25=12-7.75=4.25=4又1/4。"],
+  ["fill","ma","把2/3小时化成分钟=____分钟","40","1小时=60分钟，60×2/3=40分钟。"]
+],
+off:[
+  ["生字听写","径畅磕绊瞬弧翔权缤捐盲屡况遵搂削骚哑。18字。"],
+  ["古诗默写","默写《渔歌子》。"],
+  ["写作训练","写一个你身边熟悉的人，200字以上。通过具体事例写性格。"],
+  ["分数应用","一桶油80千克，用去3/5，用去多少千克？还剩多少？"]
+]},
+
+// DAYS 11-40: Structure with representative content (content framework from 40-day plan)
+// Day 11-20: Stage 1 (森林穿越) - Grade 5 core
+{d:11,t:"读书主题 + 方程入门",s:1,
+fc:"生字卡 Day10(18张)+阶段一薄弱古诗重背。",
+fm:"分数乘除法则。3/4×2/3=? 先约分！",
+v:[["《窃读记》·国家平台","https://basic.smartedu.cn/search?keyword=窃读记+五年级+语文"],["用字母表示数·国家平台","https://basic.smartedu.cn/search?keyword=用字母表示数+五年级+数学"],["B站备选","https://search.bilibili.com/all?keyword=窃读记+公开课"]],
+q:[["fill","ch","《泊船瓜洲》：春风又绿江南岸，________。","明月何时照我还","'绿'字是炼字典范——形容词作动词用。"],["choice","ma","3×a 简写为？","3a|a3|3+a|a³",0,"数字在前，字母在后，乘号省略。"],["fill","ma","解方程：x+27=85, x=____","58","等式两边同时减27。"],["fill","ma","解方程：3x=72, x=____","24","等式两边同时除以3。"],["fill","ma","正方形的周长用字母表示：C=____","4a","a表示边长。"],["fill","ma","长方形的面积用字母表示：S=____","ab"],["fill","ch","'窃读'的'窃'意思是？____","偷偷地"],["truefalse","ma","方程一定是等式，等式一定是方程。","错","等式不一定是方程（如2+3=5是等式但不是方程，因为没有未知数）。"]],
+off:[["生字听写","窃炒锅踮哟饿惧充檐皱酸撑柜侣娱盒豫趟。18字。"],["古诗默写","默写《泊船瓜洲》。"],["写作训练","《____，我想对你说》200字以上。"],["方程练习","(1)2x+15=65 (2)x-15=45 (3)x÷8=12"]]},
+
+{d:12,t:"思乡主题 + 解方程",s:1,
+fc:"生字卡 Day11(18张)+《泊船瓜洲》。",
+fm:"解方程规范步骤(口述)。等式性质2条。",
+v:[["古诗词三首《泊船瓜洲/秋思/长相思》","https://basic.smartedu.cn/search?keyword=泊船瓜洲+秋思+长相思+五年级"],["解方程·国家平台","https://basic.smartedu.cn/search?keyword=解方程+五年级+数学"]],
+q:[["fill","ch","《长相思》：风一更，雪一更，________，故园无此声。","聒碎乡心梦不成"],["fill","ma","解方程：5x-18=37, x=____","11","5x=55, x=11。"],["fill","ma","解方程：3(x+4)=36, x=____","8","两边÷3：x+4=12, x=8。"],["fill","ma","4x-2x=28, x=____","14","合并：2x=28, x=14。"],["choice","ch","《长相思》的作者是？","纳兰性德|李白|杜甫|苏轼",0,"清代词人纳兰性德。"],["choice","ma","下列哪个是方程？","3x+5=20|3+5=8|x+5|3x",0,"方程=含有未知数的等式。"],["fill","ch","'身向榆关那畔行'中'榆关'指？____","山海关"],["truefalse","ma","等式两边同时乘0，等式仍然成立。","错","0不能作除数，乘0后等式变成0=0失去意义。"]],
+off:[["生字听写","泊洲间数重还绿偶鬓衰榆畔帐魂缕幽葬愁。18字。"],["古诗默写","默写《长相思》。"],["写作训练","借物喻人：选一种植物（梅花/竹子/松树），写150字。"],["方程练习","(1)7x+5=3x+21 (2)5(x-2)=3x+6 (3)列方程：一个数的4倍减18=50"]]},
+
+// Days 13-40: Continued pattern - representative questions for each day
+{d:13,t:"📋 第二周复习日",s:1,
+fc:"本周+阶段一易错字(约60张抽翻)。",
+fm:"分数乘除+比和比例+三角形综合闪卡。",
+v:[["五年级上册·期中复习","https://search.bilibili.com/all?keyword=五年级上册语文+期中复习"],["简易方程专题复习","https://search.bilibili.com/all?keyword=五年级数学+简易方程+专题复习"]],
+q:[["fill","ch","《泊船瓜洲》：京口瓜洲一水间，________。","钟山只隔数重山"],["fill","ch","《长相思》：山一程，水一程，________，夜深千帐灯。","身向榆关那畔行"],["fill","ma","分数乘法：3/4 × 2/3 = ?（先约分）","1/2","约分：3和3约=1，4和2约→分母2分子1，=1/2。"],["fill","ma","分数除法：3/4 ÷ 2/3 = ?","9/8","=3/4×3/2=9/8=1又1/8。"],["fill","ma","化简比 12:18 = ____:____","2:3","同除以6。"],["fill","ma","三角形内角和=____°","180"],["fill","ma","解方程：2.5x+1.5=11.5, x=____","4"],["fill","ma","笼子里鸡和兔共35头94脚。鸡____只，兔____只","23,12","假设全鸡：35×2=70，94-70=24，兔=24÷2=12，鸡=35-12=23。"]],
+off:[["生字大听写","90字+前两周易错字。"],["古诗综合默写","Day 8-12古诗5首。"],["阶段大作文","《我生活在两个国家》300字以上。"],["数学周测","(1)3/4×2/3÷1/2 (2)99×46+46 (3)4x-2x=28 (4)笼鸡兔共20只54腿"]]},
+
+{d:14,t:"🎉 休息日",s:1,fc:"",fm:"",v:[["🎉 中国诗词大会","https://search.bilibili.com/all?keyword=中国诗词大会"],["🎉 典籍里的中国","https://search.bilibili.com/all?keyword=典籍里的中国"]],q:[],off:[["🎉 完全自由","户外运动/社交/看电影/视频连线加拿大朋友。"]]},
+
+// Days 15-40: expand with structural data
+// Each day follows same pattern: fc,fm,v,q,off
+// Using the content from the 40-day plan files
+
+// Day 15-20: Grade 5 continued
+{d:15,t:"说明文 + 分数乘除",s:1,fc:"生字卡 Day12(18张)+《长相思》。说明方法4种。",fm:"分数除法法则口述。3/4÷2/3=?",v:[["《鲸》·国家平台","https://basic.smartedu.cn/search?keyword=鲸+五年级+语文"],["分数乘法·国家平台","https://basic.smartedu.cn/search?keyword=分数乘法+五年级+数学"]],q:[["choice","ch","下列哪项不是说明方法？","拟人|列数字|作比较|打比方",0,"拟人是修辞手法。说明方法：列数字/作比较/打比方/举例子/分类别。"],["fill","ma","5/6 × 3/10 = ?（先约分）","1/4","约分：5和10约→2，6和3约→2，=1/4。"],["fill","ma","一桶油80千克，用去3/5，还剩____千克","32","80×(1-3/5)=80×2/5=32。"],["fill","ma","4/5 × 5/8 = ?","1/2","约分：4和8约→2，5和5约→1，=1/2。"],["fill","ch","'目前已知最大的鲸约有十六万公斤重'用了什么说明方法？____","列数字"],["fill","ch","说明文语言的三个特点：准确、____、客观","简洁"],["truefalse","ma","分数除法的法则是：除以一个数(0除外)等于乘这个数的倒数。","对"],["fill","ma","3 ÷ 1/2 = ?","6","3×2=6。除以一个数=乘它的倒数。"]],off:[["生字听写","鲸猪腭哺滤叛胎肺矮判获盗嫌夹恙藕粘噪。18字。"],["古诗默写","默写《秋思》。"],["写作训练","用说明文介绍一种动植物，200字以上，用≥3种说明方法。"],["分数乘除","(1)2/3×3/4= (2)5/6×3/10= (3)3/4÷2/3= (4)5/8÷5="]]},
+
+{d:16,t:"爱国主题 + 分数除法",s:1,fc:"生字卡 Day15(18张)+《秋思》。",fm:"化简比12:18=?, 比值20:25=?",v:[["《狼牙山五壮士》·国家平台","https://basic.smartedu.cn/search?keyword=狼牙山五壮士+五年级+语文"],["分数除法·国家平台","https://basic.smartedu.cn/search?keyword=分数除法+五年级+数学"]],q:[["fill","ch","《七律·长征》：红军不怕远征难，________。","万水千山只等闲"],["fill","ma","化简比 0.5:1.5 = ____:____","1:3","同乘2。"],["fill","ma","求比值 1.2:0.3 = ____","4","1.2÷0.3=4。"],["fill","ma","把1/2和2/3通分：1/2=____/6, 2/3=____/6","3,4"],["fill","ma","7/8 - 1/2 = ?","3/8","1/2=4/8，7/8-4/8=3/8。"],["choice","ch","'五壮士跳崖'中'昂首挺胸'体现了什么？","视死如归的精神|害怕|犹豫|开心",0],["fill","ch","《七律·长征》中'五岭逶迤腾细浪'用了什么修辞？____","夸张（比喻）"],["truefalse","ma","比的前项和后项同时乘/除相同的数(0除外)，比值不变。","对"]]},
+{d:17,t:"草原主题 + 比和比例",s:1,fc:"生字卡 Day16(18张)+《七律·长征》前4句。",fm:"比的基本性质。比例尺公式。",v:[["《草原》·国家平台","https://basic.smartedu.cn/search?keyword=草原+老舍+五年级+语文"],["比·国家平台","https://basic.smartedu.cn/search?keyword=比的意义+六年级+数学"]],q:[["fill","ch","'一碧千里，而并不茫茫'写的是____的景色。","草原"],["fill","ma","解比例 3:5=x:25, x=____","15","内项积=外项积：5x=75, x=15。"],["fill","ma","比例尺1:500000，图上8cm，实际____km","40","8×500000=4000000cm=40km。"],["fill","ma","药粉和水按1:50配药水，5千克药粉加水____千克","250","5×50=250。"],["choice","ch","'翠色欲流'在《草原》中形容什么？","草原的绿色浓郁|水流很急|天空很蓝|羊群很多",0],["fill","ch","'一碧千里'中'碧'的意思是？____","绿色"],["truefalse","ma","两个比相等的式子叫做比例。","对"],["fill","ma","84cm铁丝做长方形框架，长宽比3:2，长=____cm，宽=____cm","25.2,16.8","总份5，长=84÷2×3/5=25.2，宽=84÷2×2/5=16.8。"]]},
+{d:18,t:"童年主题 + 多边形面积",s:1,fc:"生字卡 Day17(18张)+《牧童》《舟过安仁》。",fm:"三角形内角和=? 面积公式=?",v:[["《冬阳·童年·骆驼队》·国家平台","https://basic.smartedu.cn/search?keyword=冬阳童年骆驼队+五年级+语文"],["平行四边形面积·国家平台","https://basic.smartedu.cn/search?keyword=平行四边形面积+五年级+数学"]],q:[["fill","ch","《牧童》：归来饱饭黄昏后，________。","不脱蓑衣卧月明"],["fill","ma","平行四边形面积 = ____ × ____","底,高"],["fill","ma","底12cm高8cm的平行四边形面积=____cm²","96"],["fill","ma","三角形面积 = ____ × ____ ÷ ____","底,高,2"],["choice","ch","《舟过安仁》中'怪生无雨都张伞'的原因是？","用伞当帆使风|遮太阳|快下雨了|好玩",0],["fill","ma","等腰直角三角形直角边6cm，面积=____cm²","18","6×6÷2=18。"],["fill","ma","上底6cm下底10cm高7cm的梯形面积=____cm²","56","(6+10)×7÷2=56。"],["truefalse","ma","任意三条线段都能围成三角形。","错","最短两边之和>最长边才行。"]]},
+{d:19,t:"语言魅力 + 三角形",s:1,fc:"生字卡 Day18(18张)+《杨氏之子》口头翻译。",fm:"多边形面积公式各1遍(口述)。",v:[["《杨氏之子》·国家平台","https://basic.smartedu.cn/search?keyword=杨氏之子+公开课+文言文"],["三角形分类·国家平台","https://basic.smartedu.cn/search?keyword=三角形的分类+内角和+四年级"]],q:[["fill","ch","《杨氏之子》选自《________》。","世说新语"],["fill","ma","三角形按角分：锐角、直角、____","钝角"],["fill","ma","等腰三角形顶角80°，底角=____°","50","(180-80)÷2=50。"],["choice","ch","'未闻孔雀是夫子家禽'中'夫子'指谁？","孔君平|杨氏子|孔子|老师",0],["fill","ma","直角三角形两个锐角和=____°","90"],["fill","ma","一个三角形中∠A=65°,∠B=48°,∠C=____°","67","180-65-48=67。"],["fill","ch","'为设果'中谁为谁设果？____为____设果","杨氏子,孔君平"],["truefalse","ma","等边三角形每个角是60°。","对","180÷3=60。"]]},
+{d:20,t:"📋 第三周复习日",s:1,fc:"阶段二全部+阶段一易错字(约80张抽翻)+2篇文言文。",fm:"分数乘除+比和比例+三角形+多边形面积综合。",v:[["小学文言文·世说新语","https://search.bilibili.com/all?keyword=小学文言文+世说新语+杨氏之子"],["五年级数学·图形与几何总复习","https://search.bilibili.com/all?keyword=五年级数学+图形与几何+总复习"]],q:[["fill","ch","《杨氏之子》：孔指以示儿曰：'________。'","此是君家果"],["fill","ch","儿应声答曰：'________。'","未闻孔雀是夫子家禽"],["fill","ma","梯形面积 = (____+____)×____÷____","上底,下底,高,2"],["fill","ma","三角形面积=12cm²,底=6cm,高=____cm","4","12×2÷6=4。"],["fill","ma","平行四边形的底扩大2倍，高不变，面积____","扩大2倍"],["fill","ma","一个等腰三角形周长34cm，一条腰12cm，底=____cm","10","34-12×2=10。"],["fill","ma","1.2:x=4:5, x=____","1.5","4x=6, x=1.5。"],["fill","ma","3/8÷3/4 = ?","1/2","3/8×4/3=1/2。"]]},
+
+// Day 21-30: Stage 2 (雪山攀登) - Grade 6 core
+{d:21,t:"自然之美 + 圆的认识",s:2,
+fc:"阶段三闪卡开始。生字 Day21(18张)+《春夜喜雨》。",
+fm:"圆 d=?, C=?, S=?(口述公式)。",
+v:[["《山中访友》·国家平台","https://basic.smartedu.cn/search?keyword=山中访友+六年级+语文"],["圆的认识·国家平台","https://basic.smartedu.cn/search?keyword=圆的认识+六年级+数学"],["B站：圆面积推导动画","https://search.bilibili.com/all?keyword=圆的面积+推导过程+动画"]],
+q:[["fill","ch","《春夜喜雨》：好雨知时节，________。","当春乃发生"],["fill","ch","________，润物细无声。","随风潜入夜"],["fill","ma","半径5cm的圆，周长=____cm（π≈3.14）","31.4","C=2πr=2×3.14×5=31.4。"],["fill","ma","面积=____cm²","78.5","S=πr²=3.14×25=78.5。"],["choice","ma","圆的周长公式是？","C=πd或C=2πr|C=πr|C=πr²|C=2πd",0],["fill","ma","r=5cm, d=____cm","10"],["fill","ma","直径是半径的____倍","2"],["truefalse","ma","π=3.14。","错","π是无限不循环小数，3.14是近似值。"]]},
+{d:22,t:"爱国精神 + 圆周长面积",s:2,fc:"生字卡 Day21(18张)+《春夜喜雨》。",fm:"圆面积公式推导过程(口述：切→拼→长方形)。",v:[["《詹天佑》·国家平台","https://basic.smartedu.cn/search?keyword=詹天佑+六年级+语文"],["圆的周长+面积·国家平台","https://basic.smartedu.cn/search?keyword=圆的周长+圆的面积+六年级+数学"]],q:[["fill","ch","《西江月》：明月别枝惊鹊，________。","清风半夜鸣蝉"],["fill","ma","d=10cm的圆，C=____cm（π≈3.14）","31.4","C=πd=3.14×10=31.4。"],["fill","ma","S=____cm²","78.5","r=5, S=3.14×25=78.5。"],["fill","ma","C=62.8cm的圆，r=____cm","10","r=C÷2π=62.8÷6.28=10。"],["fill","ma","圆环：外R=8cm，内r=5cm，面积=____cm²","122.46","π(R²-r²)=3.14×(64-25)=3.14×39=122.46。"],["choice","ch","詹天佑主持修筑的铁路是？","京张铁路|京沪铁路|京广铁路|陇海铁路",0],["fill","ch","京张铁路的特殊意义是第一条完全由________设计施工的铁路干线。","我国工程技术人员"],["truefalse","ma","半圆的周长=πr。","错","半圆周长=πr+2r(还要加直径)。"]]},
+{d:23,t:"鲁迅童年 + 百分数",s:2,fc:"生字卡 Day22(18张)+《西江月》。",fm:"百分数与小数互化。0.37=?% 60%=?",v:[["《少年闰土》·国家平台","https://basic.smartedu.cn/search?keyword=少年闰土+鲁迅+六年级+语文"],["百分数(一)·国家平台","https://basic.smartedu.cn/search?keyword=百分数+六年级+数学"]],q:[["fill","ch","《伯牙绝弦》：伯牙善鼓琴，________。","钟子期善听"],["fill","ma","0.37 = ____%","37"],["fill","ma","60% = ____(小数)","0.6"],["fill","ma","250的20% = ____","50"],["fill","ma","比120多15% = ____","138","120×1.15=138。"],["choice","ch","'高山流水'比喻什么？","知音或乐曲高妙|高山和流水|好朋友|音乐",0],["fill","ma","一件衣服原价360元，打八折=____元","288","360×0.8=288。"],["choice","ma","七五折=？","75%|7.5%|25%|0.75%",0]]},
+{d:24,t:"小说阅读 + 百分数应用",s:2,fc:"生字卡 Day23(18张)+《伯牙绝弦》口头翻译。",fm:"折扣公式。八折=?% 现价=原价×?",v:[["《穷人》·国家平台","https://basic.smartedu.cn/search?keyword=穷人+列夫托尔斯泰+六年级+语文"],["百分数(二)·国家平台","https://basic.smartedu.cn/search?keyword=百分数解决问题+折扣+六年级"]],q:[["fill","ch","《天净沙·秋》：青山绿水，________。","白草红叶黄花"],["fill","ma","100比80多____%","25","(100-80)÷80=25%。"],["fill","ma","80比100少____%","20","(100-80)÷100=20%。"],["fill","ma","存5000元年利率2.75%，一年利息____元","137.5","5000×2.75%=137.5。"],["choice","ch","《穷人》的作者是？","列夫·托尔斯泰|高尔基|契诃夫|普希金",0],["fill","ma","合格率=____÷____×100%","合格数,总数"],["fill","ma","一件商品进价240元，加价30%定价=____元","312","240×1.3=312。"],["truefalse","ma","'八折'和'80%'意思相同。","对"]]},
+{d:25,t:"人生感悟 + 圆柱圆锥",s:2,fc:"生字卡 Day24(18张)+《天净沙·秋》。",fm:"圆柱 S侧=? V=? 口述。",v:[["《学弈》·国家平台","https://basic.smartedu.cn/search?keyword=学弈+孟子+文言文"],["圆柱体积·国家平台","https://basic.smartedu.cn/search?keyword=圆柱的体积+六年级+数学"]],q:[["fill","ch","《学弈》：使弈秋诲二人弈，________，惟弈秋之为听。","其一人专心致志"],["fill","ma","圆柱侧面积=____×____","底面周长,高"],["fill","ma","圆柱体积=____×____","底面积,高"],["fill","ma","r=4cm,h=10cm圆柱体积=____cm³（π=3.14）","502.4","3.14×16×10=502.4。"],["fill","ma","圆锥体积=____×____÷____","底面积,高,3"],["fill","ch","一人虽听之，一心以为有____将至。","鸿鹄"],["fill","ch","'为是其智弗若与？'翻译：________","是因为他的智力不如吗？"],["truefalse","ma","圆柱体积是圆锥体积的3倍。","错","必须等底等高！"]]},
+{d:26,t:"民风民俗 + 负数入门",s:2,fc:"生字卡 Day25(18张)+《学弈》口头翻译。",fm:"负数比较。−5和−2谁大？数轴三要素。",v:[["《北京的春节》·国家平台","https://basic.smartedu.cn/search?keyword=北京的春节+老舍+六年级+语文"],["负数·国家平台","https://basic.smartedu.cn/search?keyword=负数+认识+六年级+数学"]],q:[["fill","ch","《七步诗》：________，豆在釜中泣。","煮豆燃豆萁"],["fill","ma","比较：-5 ____ -2（填>或<）","<","绝对值大的反而小。"],["fill","ma","-8℃~3℃，温差=____℃","11","3-(-8)=11。"],["fill","ma","数轴上，-4到2的距离是____","6","|2-(-4)|=6。"],["choice","ch","《七步诗》的作者是？","曹植|曹操|曹丕|曹冲",0],["fill","ma","|−5|=____","5"],["fill","ma","|3|=____","3"],["truefalse","ma","0不是正数也不是负数。","对"]]},
+{d:27,t:"📋 第四周复习日",s:2,fc:"阶段三全部+阶段二易错。4篇文言文随机抽背。",fm:"圆/圆柱/圆锥公式全部默写。S环=?",v:[["小学文言文·伯牙绝弦+学弈","https://search.bilibili.com/all?keyword=小学文言文+伯牙绝弦+学弈"],["六年级·圆和圆柱圆锥专题","https://search.bilibili.com/all?keyword=六年级数学+圆+圆柱圆锥+专题复习"]],q:[["fill","ch","《石灰吟》：粉骨碎身浑不怕，________。","要留清白在人间"],["fill","ch","《竹石》：千磨万击还坚劲，________。","任尔东西南北风"],["fill","ma","r=3,h=9的圆锥体积=____cm³(π=3.14)","84.78","1/3×3.14×9×9=3.14×27=84.78。"],["fill","ma","一个圆柱和圆锥等底等高，V柱=90cm³，V锥=____cm³","30","圆锥是圆柱的1/3。"],["fill","ma","某天最高5℃最低-4℃，温差=____℃","9"],["fill","ma","男生24人女生16人，男生是女生的____%","150","24÷16=1.5=150%。"],["fill","ma","半径扩大2倍，面积扩大____倍","4","S=πr²，r→2r，S→4S。"],["fill","ma","圆有____条对称轴","无数"]]},
+{d:28,t:"🎉 休息日",s:2,fc:"",fm:"",v:[["🎉 航拍中国","https://search.bilibili.com/all?keyword=航拍中国"],["🎉 超级工程","https://search.bilibili.com/all?keyword=超级工程"]],q:[],off:[["🎉 完全自由","户外运动/社交/电影/视频连线加拿大朋友。今天家长不问学习。"]]},
+
+// Day 29-30: Comprehensive review & statistics
+{d:29,t:"文言文提升 + 统计图",s:2,fc:"《两小儿辩日》口头翻译。",fm:"三种统计图各适合什么场景？",v:[["《两小儿辩日》·公开课","https://search.bilibili.com/all?keyword=两小儿辩日+公开课"],["扇形统计图·国家平台","https://basic.smartedu.cn/search?keyword=扇形统计图+六年级+数学"]],q:[["fill","ch","《两小儿辩日》：一儿曰：'我以日始出时____，而日中时____也。'","去人近,远"],["fill","ch","孔子不能____也。","决"],["fill","ma","折线统计图适合表示____","增减变化趋势"],["fill","ma","扇形统计图适合表示____","部分与整体的关系"],["choice","ma","要比较各项数量多少用？","条形统计图|折线统计图|扇形统计图|以上都行",0],["fill","ch","'孰为汝多知乎'中'孰'=____,'汝'=____","谁,你"],["fill","ma","全班40人，喜欢篮球15人，占____%","37.5","15÷40=0.375=37.5%。"],["truefalse","ma","平均数能反映一组数据的整体水平。","对"]]},
+{d:30,t:"综合复习 + 统计应用",s:2,fc:"阶段三全部古诗抽10首。4篇文言文卡随机抽背。",fm:"应用题类型口述：归一/归总/行程/工程。",v:[["六年级下册·总复习","https://search.bilibili.com/all?keyword=六年级下册语文+总复习"],["统计图的选择","https://search.bilibili.com/all?keyword=统计图的选择+条形+折线+扇形"]],q:[["fill","ma","长方形C=____, S=____","2(a+b),ab"],["fill","ma","圆C=____, S=____","2πr或πd,πr²"],["fill","ma","圆柱V=____","πr²h"],["fill","ma","圆锥V=____","πr²h/3"],["fill","ma","三角形S=____","ah/2"],["fill","ma","梯形S=____","(a+b)h/2"],["fill","ma","长方体V=____","abh"],["fill","ma","正方体V=____","a³"]]},
+
+// Day 31-40: Stage 3 (Boss战) - Review & Grade 7 preview
+{d:31,t:"综合复习：字词专题",s:3,fc:"'永久错字本'中所有顽固错字。",fm:"全部几何公式默写(圆形/圆柱/圆锥/三角形/梯形/多边形)。",v:[["小学语文·多音字总复习","https://search.bilibili.com/all?keyword=小学语文+多音字+总复习"],["小学·简便运算总结","https://search.bilibili.com/all?keyword=小学数学+简便运算+所有类型+总结"]],q:[["fill","ch","多音字：强(qiǎng)____ 强(qiáng)____ 强(jiàng)____","勉强,强壮,倔强"],["fill","ch","多音字：差(chā)____ 差(chà)____ 差(chāi)____","差别,差不多,出差"],["fill","ma","12.5×3.2×2.5 = ?","100","12.5×8×(0.4×2.5)或=12.5×8×0.4×2.5。"],["fill","ma","7/8-1/4+1/2 = ?","9/8","1/4=2/8,1/2=4/8，7/8-2/8+4/8=9/8=1又1/8。"],["fill","ma","3.6×2.5+7.4×2.5 = ?","27.5","(3.6+7.4)×2.5=11×2.5=27.5。"],["fill","ma","解方程：2.5x+1.5=11.5, x=____","4"],["fill","ma","列方程：一个数加上25等于这个数的3倍。这个数=____","12.5","x+25=3x, 2x=25, x=12.5。"],["fill","ma","12÷(3/4-1/2) = ?","48","3/4-1/2=1/4, 12÷1/4=48。"]]},
+{d:32,t:"阅读答题 + 应用题分类",s:3,fc:"阶段三薄弱古诗重背。",fm:"应用题类型口述：归一/归总/行程/工程/百分数/鸡兔同笼。",v:[["小学语文·阅读理解答题技巧","https://search.bilibili.com/all?keyword=小学语文阅读理解+答题技巧"],["小升初·应用题分类精讲","https://search.bilibili.com/all?keyword=小升初数学+应用题+分类精讲"]],q:[["choice","ch","概括主要内容公式是？","谁+在什么情况下+做什么+结果|时间+地点|起因+经过|人物+事件",0],["choice","ch","说明文语言的特点是？","准确、简洁、客观|生动、形象|夸张、幽默|优美、感人",0],["fill","ma","行程公式：____×____=路程","速度,时间"],["fill","ma","工程公式：____÷____=工作时间","工作总量,工作效率"],["fill","ma","利息公式：____×____×____=利息","本金,利率,时间"],["fill","ma","比例尺=____÷____","图上距离,实际距离"],["fill","ma","合格率=____÷____×100%","合格数,总数"],["fill","ma","一个水池，进水管6h注满，排水管8h放完，两管齐开____h注满","24","1÷(1/6-1/8)=1÷(4/24-3/24)=1÷1/24=24。"]]},
+{d:33,t:"🎯 第五次模拟测试",s:3,fc:"测试日——不翻卡，直接考试。",fm:"测试日——直接模拟考试。",v:[],q:[["fill","ch","不识庐山真面目，________。","只缘身在此山中"],["fill","ch","________，柳暗花明又一村。","山重水复疑无路"],["fill","ch","孤帆远影碧空尽，________。","唯见长江天际流"],["fill","ch","春风又绿江南岸，________。","明月何时照我还"],["fill","ch","________，润物细无声。","随风潜入夜"],["fill","ma","25×36=?(简便)____","900"],["fill","ma","3/4÷2/3=?____","9/8"],["fill","ma","r=4,h=10圆柱体积=____(π=3.14)","502.4"],["fill","ma","一件商品原价360，打八折=____","288"],["fill","ma","解方程：3x+15=75, x=____","20"]]},
+{d:34,t:"错题分析日",s:3,fc:"根据Day33测试结果，只翻扣分项对应的卡。",fm:"根据Day33测试结果，只翻扣分项对应的卡。",v:[["按需搜索：小学+易错点","https://search.bilibili.com/all?keyword=小学+易错题"]],q:[],off:[["错题分析","归类：计算粗心/概念不清/审题失误/方法不会。'方法不会'的找同类题3道重做。"],["薄弱点专攻","根据测试结果，专攻失分最多的2个专题。"]]},
+{d:35,t:"初一预习：语文",s:3,fc:"七上古诗《观沧海》新卡制作+朗读。",fm:"有理数分类口述。正数/负数/0的关系。",v:[["《春》·朱自清·国家平台","https://basic.smartedu.cn/search?keyword=春+朱自清+七年级+语文"],["正数和负数·国家平台","https://basic.smartedu.cn/search?keyword=正数和负数+七年级+数学"],["有理数·国家平台","https://basic.smartedu.cn/search?keyword=有理数+七年级+数学"]],q:[["fill","ch","《观沧海》：东临碣石，________。","以观沧海"],["fill","ma","|-5| = ____","5"],["fill","ma","(-3)+(+5)=____","2"],["fill","ma","(+8)+(-3)=____","5"],["fill","ma","(-6)-(-4)=____","-2","-6+4=-2。"],["fill","ma","-5-(-2)=____","-3","-5+2=-3。"],["fill","ma","|a|=5, a=____或____","5,-5"],["choice","ma","0是？","既不是正数也不是负数|正数|负数|整数",0]]},
+{d:36,t:"初一预习：整式",s:3,fc:"七上《春》生字预习卡(自选10个)。",fm:"绝对值口述。|-5|=? |3|=?",v:[["《观沧海》·国家平台","https://basic.smartedu.cn/search?keyword=观沧海+七年级+语文"],["整式的加减·国家平台","https://basic.smartedu.cn/search?keyword=整式的加减+合并同类项+七年级"]],q:[["fill","ma","合并同类项：3x+5x=____","8x"],["fill","ma","7a²-3a²=____","4a²"],["fill","ma","去括号：3(x+2)=____","3x+6"],["fill","ma","去括号：-2(3x-4)=____","-6x+8"],["fill","ma","(2a+3b)+(a-b)=____","3a+2b"],["fill","ma","(5x-2)-(2x-1)=____","3x-1","5x-2-2x+1=3x-1。"],["fill","ma","2xy+3xy-xy=____","4xy"],["fill","ma","5m²n-2m²n+m²n=____","4m²n"]]},
+{d:37,t:"终测准备 + 收尾",s:3,fc:"40天全部古诗卡随机抽20首默写。",fm:"全部公式卡过一遍(约20张)。",v:[["初一·有理数加法口诀","https://search.bilibili.com/all?keyword=初一数学+有理数加法+口诀"],["初中语文·小学学习方法区别","https://search.bilibili.com/all?keyword=初中语文+学习方法+与小学的区别"]],q:[["fill","ma","(-7)+(-2)=____","-9"],["fill","ma","3-7=____","-4"],["fill","ma","合并：5a²b-3ab²+2a²b+ab²=____","7a²b-2ab²"],["fill","ma","去括号：3(2x-y)-2(x+3y)=____","4x-9y","6x-3y-2x-6y=4x-9y。"],["fill","ma","|−3|+|5|=____","8"],["fill","ma","绝对值最小的数是____","0"],["fill","ma","如果|x|=2，则x=____","±2"],["fill","ma","数轴上，到原点距离为3的点有____个","2"]]},
+{d:38,t:"终极错题消灭",s:3,fc:"'永久错字本'终极消灭——全部再听写。",fm:"错题本重新做——重点看'方法不会'的。",v:[["初一新生入学·学习规划","https://search.bilibili.com/all?keyword=初一新生+入学准备+学习规划"]],q:[],off:[["终极错字消灭","'永久错字本'中所有顽固错字再听写一遍。"],["错题回顾","数学错题本重新做一遍，重点'方法不会'的题。"],["开学准备","确认教材版本，准备必读名著：《朝花夕拾》《西游记》。"]]},
+{d:39,t:"🎯 第六次终测",s:3,fc:"终测——不翻卡。",fm:"终测——不翻卡。",v:[],q:[["fill","ch","山重水复疑无路，________。","柳暗花明又一村"],["fill","ch","劝君更尽一杯酒，________。","西出阳关无故人"],["fill","ch","随风潜入夜，________。","润物细无声"],["fill","ma","3.6×2.5+7.4×2.5=____","27.5"],["fill","ma","3/4÷[1/2×(3/4-1/3)]=____","6"],["fill","ma","r=6,h=12的圆柱体积=____(π=3.14)","1356.48"],["fill","ma","圆锥V=84.78(cm³),r=3,h=____","9"],["fill","ma","-3-(-8)=____","5"],["fill","ma","合并同类项：6ab-2ab+ab=____","5ab"],["fill","ma","去括号：4(2x-1)-3(x+2)=____","5x-10"]]},
+{d:40,t:"🏁 收尾：40天闯关完成！",s:3,fc:"翻看整摞闪卡，感受40天的积累厚度。",fm:"全部公式默写一遍即过关。",v:[["🎉 恭喜！",""],["初中生活·学长学姐经验分享","https://search.bilibili.com/all?keyword=初中生活+学习经验+学长学姐"]],q:[],off:[["回顾闪卡","翻阅40天制作的闪卡，感受积累的厚度——你已经很棒了！"],["回顾作文","翻看作文本，选出最满意的3篇。"],["开学用品清单","检查书包/文具/校服是否准备好。"],["设定初中目标","在纸上写3个初中想要做到的事（学习+交友+兴趣各1个）。"],["庆祝！","你完成了40天的探险！给自己一个大大的奖励！🎉"]]}
+];
+
+// Ensure levels array length matches 40
+// (Already 40 entries: d:1 through d:40)
+</script>
+
+<script>
+// ========== APP ENGINE ==========
+const STORAGE_KEY='studyquest40';
+const DEFAULT_STATE={
+  currentDay:1,
+  completed:{},     // {day: {score,date,offlineDone:[],exerciseResults:[]}}
+  errors:{},        // {day: [{q,userAnswer,correctAnswer}]}
+  points:0,
+  streak:0,
+  longestStreak:0,
+  lastCompleteDate:null,
+  badges:[false,false,false,false], // 4 stage badges
+  seenIntro:false
+};
+
+let state=loadState();
+let currentLevel=null;
+let exerciseState={}; // {questionIndex: {answered,correct,userAnswer}}
+
+// === STORAGE ===
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){const s=JSON.parse(raw);return {...DEFAULT_STATE,...s};}
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+
+// === UTILS ===
+function $(sel){return document.querySelector(sel);}
+function $$(sel){return document.querySelectorAll(sel);}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+function speak(text){try{const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=0.9;speechSynthesis.speak(u);}catch(e){}}
+
+// === NAVIGATION ===
+function showPage(name){
+  $$('.page').forEach(p=>p.classList.remove('active'));
+  $$('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  const page=$('#page-'+name);
+  if(page)page.classList.add('active');
+  const tab=document.querySelector(`nav.tabs button[data-page="${name}"]`);
+  if(tab)tab.classList.add('active');
+  if(name==='level'){
+    $('#tab-level').style.display='block';
+  }else{
+    $('#tab-level').style.display=name==='level'?'block':'none';
+  }
+}
+
+function navigateTo(page,levelId){
+  showPage(page);
+  if(page==='level'&&levelId!==undefined){
+    openLevel(levelId);
+  }
+  if(page==='map')renderMap();
+  if(page==='errors')renderErrors();
+  if(page==='achievements')renderAchievements();
+  if(page==='parent')renderParent();
+}
+
+// === MAP PAGE ===
+function isLevelUnlocked(day){
+  if(day===1)return true;
+  const prev=state.completed[day-1];
+  return prev&&prev.score>=5; // at least some progress
+}
+function isLevelDone(day){return !!state.completed[day];}
+function getLevelStatus(day){
+  if(isLevelDone(day))return 'done';
+  if(isLevelUnlocked(day))return day===state.currentDay?'current':'unlocked';
+  return 'locked';
+}
+
+function renderMap(){
+  const container=$('#page-map');
+  let html='<div style="text-align:center;margin-bottom:12px;font-size:.9rem;color:#999;">🌟 终点站：初中，Zoe来啦！</div>';
+
+  for(let stage=0;stage<4;stage++){
+    html+=`<div class="stage-label">${STAGE_EMOJI[stage]} ${STAGES[stage]}</div>`;
+    html+='<div class="level-grid">';
+    for(let d=stage*10+1;d<=Math.min(stage*10+10,40);d++){
+      const status=getLevelStatus(d);
+      const done=isLevelDone(d);
+      let cls='level-node '+status;
+      let star=done&&state.completed[d].score>=20?'⭐':'';
+      let content=`<div class="day">Day${d}</div>${d}`;
+      html+=`<div class="${cls}" onclick="navigateTo('level',${d})" title="Day ${d}">${star}${content}</div>`;
+    }
+    html+='</div>';
+  }
+
+  html+='<div style="text-align:center;margin-top:16px;font-size:.9rem;color:#999;">🛫 起点：从加拿大带回的行囊</div>';
+  html+='<div style="text-align:center;margin-top:12px;font-size:.85rem;">🟢已探索 🟠正在这里 ⚪即将到达</div>';
+  container.innerHTML=html;
+
+  // Check badges
+  const stageDone=[1,2,3,4].map(s=>{
+    const start=(s-1)*10+1, end=Math.min(s*10,40);
+    let cnt=0;
+    for(let d=start;d<=end;d++){if(isLevelDone(d))cnt++;}
+    return cnt>=10;
+  });
+  if(stageDone.some((d,i)=>d!==state.badges[i])){
+    stageDone.forEach((d,i)=>{if(d)state.badges[i]=true;});
+    saveState();
+    if(stageDone.some((d,i)=>d&&!state.badges[i]))toast('🎖️ Zoe获得了一枚新纪念章！');
+  }
+
+  updateHeader();
+}
+
+// === LEVEL PAGE ===
+function openLevel(day){
+  currentLevel=LEVELS.find(l=>l.d===day);
+  if(!currentLevel)return;
+
+  const lv=currentLevel;
+  exerciseState={};
+  state.currentDay=day;
+  saveState();
+
+  const container=$('#page-level');
+  const stageEmoji=STAGE_EMOJI[lv.s];
+  const done=isLevelDone(day);
+  const saved=state.completed[day];
+
+  let html=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button onclick="navigateTo('map')" style="background:none;border:none;font-size:1.2rem;cursor:pointer;padding:4px 8px;">← 地图</button>
+      <div style="font-weight:700;font-size:1.1rem;text-align:center">${stageEmoji} 第 ${lv.d} 站</div>
+      <div style="font-size:.85rem;color:#999">旅程 ${day}/40</div>
+    </div>
+    <h2 style="text-align:center;margin-bottom:16px;font-size:1.2rem">${lv.t}</h2>
+  `;
+
+  // Flashcard
+  if(lv.fc||lv.fm){
+    html+=`<div class="quest-section"><h3><span class="emoji">🃏</span>闪卡复习（10分钟）</h3><div class="flashcard-grid">`;
+    if(lv.fc)html+=`<div class="flashcard" onclick="this.classList.toggle('flipped')">🇨🇳 语文<br><small>${lv.fc||'无(第一天)'}</small></div>`;
+    if(lv.fm)html+=`<div class="flashcard" onclick="this.classList.toggle('flipped')">🔢 数学<br><small>${lv.fm||'无(第一天)'}</small></div>`;
+    html+=`</div></div>`;
+  }
+
+  // Videos
+  if(lv.v&&lv.v.length>0){
+    html+=`<div class="quest-section"><h3><span class="emoji">🎬</span>视频课程（15-20分钟）</h3>`;
+    lv.v.forEach(v=>{
+      html+=`<a href="${v[1]}" target="_blank" rel="noopener" class="video-link">📺 ${v[0]}</a>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Exercises
+  if(lv.q&&lv.q.length>0){
+    html+=`<div class="quest-section"><h3><span class="emoji">✏️</span>在线练习（${lv.q.length}题）</h3>`;
+    html+=`<div id="exercises-container">`;
+    lv.q.forEach((eq,i)=>{
+      const [type,subj,question,optsOrAns,correct,explanation]=eq;
+      const subjCls=subj==='ch'?'ch':'ma';
+      const subjName=subj==='ch'?'语文':'数学';
+      const prevResult=saved&&saved.exerciseResults?saved.exerciseResults[i]:null;
+
+      html+=`<div class="exercise-block" id="ex-${i}">`;
+      html+=`<div class="q"><span class="subj ${subjCls}">${subjName}</span>${question}</div>`;
+
+      if(type==='choice'){
+        // options stored as pipe-separated string: "A|B|C|D"
+        const opts=optsOrAns.split('|');
+        const correctIdx=typeof correct==='number'?correct:parseInt(correct);
+        html+=`<div class="opts">`;
+        opts.forEach((opt,oi)=>{
+          html+=`<label><input type="radio" name="q${i}" value="${oi}" ${prevResult&&prevResult.userAnswer==oi?'checked':''}>${opt}</label>`;
+        });
+        html+=`</div>`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'choice',${correctIdx},'${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+      }else if(type==='fill'){
+        html+=`<input type="text" id="fill-${i}" placeholder="输入你的答案..." value="${prevResult?prevResult.userAnswer:''}">`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'fill','${(optsOrAns+'').replace(/'/g,"\\'")}','${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+      }else if(type==='truefalse'){
+        const correctIsTrue=correct==='对'||correct===true||correct==='true';
+        html+=`<div class="opts"><label><input type="radio" name="q${i}" value="对">✅ 对</label><label><input type="radio" name="q${i}" value="错">❌ 错</label></div>`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'truefalse',${correctIsTrue},'${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+      }
+
+      html+=`<button class="btn-check retry" onclick="retryQuestion(${i})" style="display:none">🔄 重做</button>`;
+      html+=`<div class="feedback" id="fb-${i}">${explanation}</div>`;
+      html+=`</div>`;
+
+      // Initialize state
+      exerciseState[i]={answered:!!prevResult,correct:prevResult?prevResult.correct:false,userAnswer:prevResult?prevResult.userAnswer:null};
+      if(prevResult){
+        const block=$(`#ex-${i}`);
+        // will update after render
+      }
+    });
+    html+=`</div></div>`;
+  }
+
+  // Offline tasks
+  if(lv.off&&lv.off.length>0){
+    html+=`<div class="quest-section"><h3><span class="emoji">📝</span>线下练习</h3>`;
+    lv.off.forEach((ot,oi)=>{
+      html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
+    });
+    html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本节线下练习</button></div>`;
+  }
+
+  // Complete button
+  const canComplete=(lv.q&&lv.q.length>0)?Object.values(exerciseState).every(es=>es.answered):true;
+  html+=`<button class="btn-primary" id="btn-complete" onclick="completeLevel()" ${!canComplete&&!done?'disabled':''}>${done?'🌟 重新提交':'🌟 完成今日探索！收集星光'}</button>`;
+  if(done&&saved){
+    html+=`<div class="result-banner pass">✨ 已探索！星光：${saved.score}/${lv.q?lv.q.length*3+7:10}（目标10颗🌟）</div>`;
+  }
+
+  container.innerHTML=html;
+
+  // Restore previous exercise feedback states
+  setTimeout(()=>{
+    lv.q&&lv.q.forEach((eq,i)=>{
+      if(exerciseState[i]&&exerciseState[i].answered){
+        const block=$(`#ex-${i}`);
+        if(!block)return;
+        const fb=$(`#fb-${i}`);
+        const retryBtn=block.querySelector('.btn-check.retry');
+        const submitBtn=block.querySelector('.btn-check.submit');
+        if(exerciseState[i].correct){
+          block.classList.add('correct');
+          if(fb){fb.classList.add('show','ok');fb.textContent='✅ 正确！'+fb.textContent;}
+          if(submitBtn)submitBtn.style.display='none';
+          if(retryBtn)retryBtn.style.display='none';
+        }else{
+          block.classList.add('wrong');
+          if(fb){fb.classList.add('show','no');fb.textContent='❌ 不对哦。'+fb.textContent;}
+          if(submitBtn)submitBtn.style.display='none';
+          if(retryBtn)retryBtn.style.display='inline-block';
+        }
+      }
+    });
+  },100);
+
+  showPage('level');
+  $('#tab-level').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function checkAnswer(idx,type,correctAnswer,explanation){
+  if(exerciseState[idx]&&exerciseState[idx].answered)return;
+
+  let userAnswer,isCorrect;
+  const block=$(`#ex-${idx}`);
+  const fb=$(`#fb-${idx}`);
+  const submitBtn=block.querySelector('.btn-check.submit');
+  const retryBtn=block.querySelector('.btn-check.retry');
+
+  if(type==='choice'){
+    const selected=block.querySelector('input[type=radio]:checked');
+    if(!selected){toast('请先选择一个答案');return;}
+    userAnswer=parseInt(selected.value);
+    isCorrect=userAnswer===correctAnswer;
+  }else if(type==='fill'){
+    const input=$(`#fill-${idx}`);
+    userAnswer=(input.value||'').trim();
+    // Flexible matching: ignore whitespace and common separators
+    const normalize=s=>s.replace(/\s+/g,'').replace(/[,，、]/g,',').toLowerCase();
+    isCorrect=normalize(userAnswer)===normalize(correctAnswer+'');
+  }else if(type==='truefalse'){
+    const selected=block.querySelector('input[type=radio]:checked');
+    if(!selected){toast('请先选择✅对或❌错');return;}
+    userAnswer=selected.value;
+    const userBool=userAnswer==='对';
+    isCorrect=userBool===correctAnswer;
+  }
+
+  exerciseState[idx]={answered:true,correct:isCorrect,userAnswer};
+
+  if(isCorrect){
+    block.classList.add('correct');
+    fb.classList.add('show','ok');
+    fb.textContent='✅ 正确！'+(explanation||'');
+    if(submitBtn)submitBtn.style.display='none';
+    if(retryBtn)retryBtn.style.display='none';
+    speak('答对了，Zoe真厉害');
+  }else{
+    block.classList.add('wrong');
+    fb.classList.add('show','no');
+    fb.textContent='❌ 不对哦。'+(explanation||'');
+    if(submitBtn)submitBtn.style.display='none';
+    if(retryBtn)retryBtn.style.display='inline-block';
+  }
+
+  // Update complete button
+  const canComplete=Object.values(exerciseState).every(es=>es.answered);
+  const btn=$('#btn-complete');
+  if(btn)btn.disabled=!canComplete;
+
+  // Save error
+  if(!isCorrect){
+    if(!state.errors[currentLevel.d])state.errors[currentLevel.d]=[];
+    state.errors[currentLevel.d].push({idx,q:currentLevel.q[idx][2],userAnswer,correctAnswer});
+    saveState();
+  }
+}
+
+function retryQuestion(idx){
+  const block=$(`#ex-${idx}`);
+  const fb=$(`#fb-${idx}`);
+  const submitBtn=block.querySelector('.btn-check.submit');
+  const retryBtn=block.querySelector('.btn-check.retry');
+
+  block.classList.remove('correct','wrong');
+  fb.classList.remove('show','ok','no');
+  if(submitBtn)submitBtn.style.display='inline-block';
+  if(retryBtn)retryBtn.style.display='none';
+
+  // Reset radio/input
+  const radios=block.querySelectorAll('input[type=radio]');
+  radios.forEach(r=>r.checked=false);
+  const input=block.querySelector('input[type=text]');
+  if(input)input.value='';
+
+  exerciseState[idx]={answered:false,correct:false,userAnswer:null};
+
+  const canComplete=Object.values(exerciseState).every(es=>es.answered);
+  const btn=$('#btn-complete');
+  if(btn)btn.disabled=!canComplete;
+}
+
+function updateOffline(){
+  // Track offline task check state - handled during completeLevel
+}
+
+function completeLevel(){
+  const day=currentLevel.d;
+  const lv=currentLevel;
+
+  // Calculate score
+  let score=0;
+  if(lv.q&&lv.q.length>0){
+    Object.values(exerciseState).forEach(es=>{
+      if(es.correct)score+=2;  // 2 points per correct
+      else if(es.answered)score+=1; // 1 point for attempt
+    });
+  }
+
+  // Offline tasks
+  const offlineDone=[];
+  const offlineChecks=$$('#page-level .offline-item input[type=checkbox]');
+  offlineChecks.forEach(cb=>{
+    offlineDone.push(cb.checked);
+    if(cb.checked)score+=1;
+  });
+
+  // Completion bonus
+  if(score>=10)score+=5;
+
+  // Save
+  const prev=state.completed[day];
+  state.completed[day]={
+    score,
+    date:new Date().toISOString().split('T')[0],
+    offlineDone,
+    exerciseResults:lv.q?lv.q.map((_,i)=>({
+      answered:exerciseState[i]?exerciseState[i].answered:false,
+      correct:exerciseState[i]?exerciseState[i].correct:false,
+      userAnswer:exerciseState[i]?exerciseState[i].userAnswer:null
+    })):[]
+  };
+  state.points+=score;
+
+  // Streak
+  const today=new Date().toISOString().split('T')[0];
+  if(state.lastCompleteDate===today){
+    // already completed today
+  }else if(state.lastCompleteDate){
+    const last=new Date(state.lastCompleteDate);
+    const now=new Date(today);
+    const diff=(now-last)/86400000;
+    if(diff<=1.5)state.streak++;
+    else state.streak=1;
+  }else{
+    state.streak=1;
+  }
+  state.lastCompleteDate=today;
+  if(state.streak>state.longestStreak)state.longestStreak=state.streak;
+
+  saveState();
+  updateHeader();
+
+  // Confetti
+  spawnConfetti();
+
+  const resultDiv=document.createElement('div');
+  resultDiv.className='result-banner '+(score>=10?'pass':'fail');
+  resultDiv.innerHTML=`${score>=10?'🎉 探索完成！Zoe真棒！':'📋 今日足迹已记录。'} 星光：<b>${score}</b> 颗 | ${score>=10?'今天的旅程目标达成 ✅':'明天继续探索 💪'}`;
+  const container=$('#page-level');
+  const btn=$('#btn-complete');
+  if(btn)btn.replaceWith(resultDiv);
+
+  toast(score>=10?'🎉 太棒了！星光+'+score:'📋 已保存。明天继续加油哦，Zoe！');
+
+  // Unlock next day
+  if(day<40&&score>=5){
+    if(!state.completed[day+1])state.currentDay=day+1;
+  }
+
+  // Stage badge
+  const stage=lv.s;
+  const stageStart=stage*10+1;
+  const stageEnd=Math.min(stage*10+10,40);
+  let allPassed=true;
+  for(let d=stageStart;d<=stageEnd;d++){
+    if(!state.completed[d]||state.completed[d].score<5){allPassed=false;break;}
+  }
+  if(allPassed&&!state.badges[stage]){
+    state.badges[stage]=true;
+    saveState();
+    setTimeout(()=>toast('🎖️ 到达新站点！'+STAGES[stage]+'纪念章解锁！'),1500);
+  }
+
+  saveState();
+}
+
+function spawnConfetti(){
+  const container=document.createElement('div');
+  container.className='confetti';
+  const colors=['#f44336','#e91e63','#9c27b0','#2196f3','#4caf50','#ff9800','#ffeb3b'];
+  for(let i=0;i<50;i++){
+    const span=document.createElement('span');
+    span.style.left=Math.random()*100+'%';
+    span.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+    span.style.animationDelay=Math.random()*0.5+'s';
+    span.style.animationDuration=(1+Math.random()*1.5)+'s';
+    container.appendChild(span);
+  }
+  document.body.appendChild(container);
+  setTimeout(()=>container.remove(),2500);
+}
+
+// === PARENT PAGE ===
+function renderParent(){
+  const container=$('#page-parent');
+  const totalDays=40;
+  const completedDays=Object.keys(state.completed).length;
+  const pct=Math.round(completedDays/totalDays*100);
+  const stageDone=state.badges.filter(b=>b).length;
+
+  // Collect errors
+  let totalErrors=0;
+  const errorList=[];
+  Object.entries(state.errors).forEach(([day,errs])=>{
+    errs.forEach(e=>{
+      totalErrors++;
+      errorList.push({day:parseInt(day),question:e.q,userAnswer:e.userAnswer,correctAnswer:e.correctAnswer});
+    });
+  });
+
+  let html=`
+    <h3 style="margin-bottom:16px">💌 爸爸妈妈的话</h3>
+    <p style="text-align:center;margin-bottom:20px;font-size:.95rem;color:#888;line-height:1.8">
+      亲爱的Zoe，<br>你在加拿大度过了三年精彩的时光，<br>现在带着独特的经历和视野回到中国。<br>这40天不是"补课"，而是一次探索——<br>每一天，你都在靠近一个更丰富的自己。<br>爸爸妈妈为你加油。💛
+    </p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="val">${pct}%</div><div class="lbl">完成进度（${completedDays}/${totalDays}关）</div></div>
+      <div class="stat-card"><div class="val">${state.points}</div><div class="lbl">累计星光🌟</div></div>
+      <div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">连续探索（天）</div></div>
+      <div class="stat-card"><div class="val">${state.longestStreak}</div><div class="lbl">最长连续记录</div></div>
+      <div class="stat-card"><div class="val">${stageDone}/4</div><div class="lbl">纪念站到达</div></div>
+      <div class="stat-card"><div class="val">${totalErrors}</div><div class="lbl">成长印记数</div></div>
+    </div>
+    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <p style="text-align:center;font-size:.85rem;color:#999;margin:4px 0 16px">40天旅程总进度 ${pct}%</p>
+  `;
+
+  if(errorList.length>0){
+    html+=`<h4 style="margin-bottom:8px">💭 成长印记明细</h4>`;
+    html+=`<table class="error-table"><tr><th>关卡</th><th>题目</th><th>回答</th><th>正确答案</th></tr>`;
+    errorList.slice(-20).reverse().forEach(e=>{
+      html+=`<tr><td>Day ${e.day}</td><td>${e.question}</td><td style="color:var(--wrong)">${e.userAnswer}</td><td style="color:var(--correct)">${e.correctAnswer}</td></tr>`;
+    });
+    html+=`</table>`;
+  }else{
+    html+=`<p style="text-align:center;color:#999;margin-top:24px">暂无错题记录 🎉</p>`;
+  }
+
+  html+=`<p style="margin-top:24px;font-size:.75rem;color:#bbb;text-align:center">💛 Zoe的所有星光和足迹都保存在这个设备的浏览器里。换了设备也没关系，新的旅程随时可以开始。</p>`;
+html+=`<div style="text-align:center;margin-top:12px"><button class="btn-print" onclick="showWelcome()" style="display:inline-block;width:auto;padding:8px 24px">💌 再看一遍爸爸妈妈的信</button></div>`;
+  container.innerHTML=html;
+}
+
+// === ERRORS PAGE ===
+function renderErrors(){
+  const container=$('#page-errors');
+  let allErrors=[];
+  Object.entries(state.errors).forEach(([day,errs])=>{
+    errs.forEach(e=>allErrors.push({day:parseInt(day),...e}));
+  });
+
+  if(allErrors.length===0){
+    container.innerHTML=`<h3 style="text-align:center;margin:40px 0">💭 成长印记</h3><p style="text-align:center;color:#999">这里记录的是Zoe每次勇敢尝试的足迹。目前没有错误，太厉害了！🎉</p>`;
+    return;
+  }
+
+  let html=`<h3 style="margin-bottom:16px">💭 成长印记（${allErrors.length}个发现）</h3>`;
+  html+=`<p style="font-size:.85rem;color:#999;margin-bottom:12px">每一次"不对"都是一次发现。点击可重新尝试，消灭印记还能获得额外星光哦！</p>`;
+
+  const byDay={};
+  allErrors.forEach(e=>{
+    if(!byDay[e.day])byDay[e.day]=[];
+    byDay[e.day].push(e);
+  });
+
+  Object.keys(byDay).sort((a,b)=>a-b).forEach(day=>{
+    html+=`<h4 style="margin-top:12px">Day ${day}</h4>`;
+    byDay[day].forEach((e,i)=>{
+      html+=`<div class="quest-section" style="font-size:.9rem">
+        <p><b>题目：</b>${e.q}</p>
+        <p style="color:var(--wrong)">❌ 你的回答：${e.userAnswer}</p>
+        <p style="color:var(--correct)">✅ 正确答案：${e.correctAnswer}</p>
+        <button class="btn-check submit" onclick="retryError(${day},${e.idx})" style="margin-top:6px">🔄 重新回答</button>
+      </div>`;
+    });
+  });
+
+  container.innerHTML=html;
+}
+
+// === ACHIEVEMENTS PAGE ===
+function renderAchievements(){
+  const container=$('#page-achievements');
+  let html=`<h3 style="margin-bottom:16px">🎖️ Zoe的纪念章</h3><div class="badge-grid">`;
+
+  const stageNames=STAGES.map((s,i)=>STAGE_EMOJI[i]+' '+s);
+  stageNames.forEach((name,i)=>{
+    const earned=state.badges[i];
+    html+=`<div class="badge-card ${earned?'earned':'locked'}">
+      <div class="icon">${STAGE_EMOJI[i]}</div>
+      <div class="name">${name}</div>
+      <div class="cond">${earned?'✅ 已获得':'🔒 完成'+(i*10+1)+'-'+Math.min(i*10+10,40)+'关'}</div>
+    </div>`;
+  });
+
+  html+=`<div class="badge-card ${state.longestStreak>=7?'earned':'locked'}">
+    <div class="icon">🔥</div><div class="name">坚持不懈</div>
+    <div class="cond">${state.longestStreak>=7?'✅ 最长连续探索'+state.longestStreak+'天':'🔒 连续7天探索'}</div>
+  </div>`;
+
+  html+=`<div class="badge-card ${state.points>=600?'earned':'locked'}">
+    <div class="icon">⭐</div><div class="name">星光收集家</div>
+    <div class="cond">${state.points>=600?'✅ 累计星光'+state.points+'颗':'🔒 累计收集600颗星光（当前'+state.points+'颗）'}</div>
+  </div>`;
+
+  html+=`</div>`;
+
+  // Stats
+  html+=`<div class="quest-section" style="margin-top:16px">
+    <h3>📊 Zoe的旅程数据</h3>
+    <p>🗺️ 已完成探索：${Object.keys(state.completed).length} / 40 站</p>
+    <p>🌟 累计星光：${state.points} 颗</p>
+    <p>🔥 最长连续探索：${state.longestStreak} 天</p>
+    <p>💭 成长印记：${Object.values(state.errors).flat().length} 个</p>
+    <p>🎖️ 获得纪念章：${state.badges.filter(b=>b).length} / 4 枚</p>
+  </div>`;
+
+  container.innerHTML=html;
+}
+
+// === HEADER ===
+function updateHeader(){
+  $('#hdr-points').textContent=state.points;
+  $('#hdr-streak').textContent=state.streak;
+  $('#hdr-badges').textContent=state.badges.filter(b=>b).length;
+}
+
+// === WELCOME ===
+let welcomeCard=1;
+function showCard(n){
+  for(let i=1;i<=3;i++){
+    const card=$('#wCard'+i);const dot=$('#dot'+i);
+    if(card)card.classList.toggle('active',i===n);
+    if(dot)dot.classList.toggle('on',i===n);
+  }
+  welcomeCard=n;
+  const prev=$('#wPrevBtn');const next=$('#wNextBtn');const start=$('#wStartBtn');
+  if(prev)prev.style.display=n<=1?'none':'inline-block';
+  if(next)next.style.display=n>=3?'none':'inline-block';
+  if(start)start.style.display=n>=3?'inline-block':'none';
+}
+function welcomeNext(){if(welcomeCard<3)showCard(welcomeCard+1);}
+function welcomePrev(){if(welcomeCard>1)showCard(welcomeCard-1);}
+function startJourney(){
+  state.seenIntro=true;
+  saveState();
+  const overlay=$('#welcomeOverlay');
+  if(overlay)overlay.style.opacity='0';
+  setTimeout(()=>{if(overlay)overlay.style.display='none';},400);
+  speak('Zoe，慢慢走，我们一直都在。');
+  navigateTo('map');
+}
+function skipWelcome(){
+  const overlay=$('#welcomeOverlay');
+  if(overlay)overlay.style.opacity='0';
+  setTimeout(()=>{if(overlay)overlay.style.display='none';},400);
+  navigateTo('map');
+}
+function showWelcome(){
+  const overlay=$('#welcomeOverlay');
+  if(overlay){overlay.style.display='flex';overlay.style.opacity='1';showCard(1);}
+}
+
+// === INIT ===
+function init(){
+  // Check if yesterday's streak needs reset
+  if(state.lastCompleteDate){
+    const last=new Date(state.lastCompleteDate);
+    const today=new Date();
+    const diff=(today-last)/86400000;
+    if(diff>1.5&&diff<2.5){
+      // Missed one day, streak continues but doesn't grow
+    }else if(diff>=2.5){
+      state.streak=0;
+      saveState();
+    }
+  }
+
+  updateHeader();
+
+  // Tab clicks
+  $$('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const page=this.dataset.page;
+      if(page==='map')navigateTo('map');
+      else if(page==='level'){
+        if(currentLevel)navigateTo('level');
+        else navigateTo('map');
+      }
+      else if(page==='errors')navigateTo('errors');
+      else if(page==='achievements')navigateTo('achievements');
+      else if(page==='parent')navigateTo('parent');
+    });
+  });
+
+  // Show welcome letter on first visit
+  if(!state.seenIntro){
+    showWelcome();
+  }else{
+    navigateTo('map');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
