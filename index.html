@@ -771,7 +771,7 @@ function getLevelStatus(day){
 }
 
 function renderMap(){
-  const container=$('#page-map');
+  const container=document.getElementById('page-map');
   let html='<div style="text-align:center;margin-bottom:12px;font-size:.9rem;color:#999;">🌟 终点站：初中，Zoe来啦！</div>';
 
   for(let stage=0;stage<4;stage++){
@@ -819,7 +819,8 @@ function openLevel(day){
   state.currentDay=day;
   saveState();
 
-  const container=$('#page-level');
+  const container=document.getElementById('page-level');
+  if(!container){alert('错误：找不到 page-level 元素');return;}
   const stageEmoji=STAGE_EMOJI[lv.s];
   const done=isLevelDone(day);
   const saved=state.completed[day];
@@ -914,15 +915,21 @@ function openLevel(day){
     html+=`<div class="result-banner pass">✨ 已探索！星光：${saved.score}/${lv.q?lv.q.length*3+7:10}（目标10颗🌟）</div>`;
   }
 
-  container.innerHTML=html;
+  try{
+    container.innerHTML=html;
+  }catch(e){
+    container.innerHTML='<div style="padding:40px;text-align:center;color:red"><b>渲染出错</b><br>'+e.message+'<br><br><button onclick="navigateTo(\'map\')">← 返回地图</button></div>';
+    showPage('level');
+    return;
+  }
 
   // Restore previous exercise feedback states
   setTimeout(()=>{
     lv.q&&lv.q.forEach((eq,i)=>{
       if(exerciseState[i]&&exerciseState[i].answered){
-        const block=$(`#ex-${i}`);
+        const block=document.getElementById('ex-'+i);
         if(!block)return;
-        const fb=$(`#fb-${i}`);
+        const fb=document.getElementById('fb-'+i);
         const retryBtn=block.querySelector('.btn-check.retry');
         const submitBtn=block.querySelector('.btn-check.submit');
         if(exerciseState[i].correct){
@@ -949,8 +956,9 @@ function checkAnswer(idx,type,correctAnswer,explanation){
   if(exerciseState[idx]&&exerciseState[idx].answered)return;
 
   let userAnswer,isCorrect;
-  const block=$(`#ex-${idx}`);
-  const fb=$(`#fb-${idx}`);
+  const block=document.getElementById('ex-'+idx);
+  const fb=document.getElementById('fb-'+idx);
+  if(!block)return;
   const submitBtn=block.querySelector('.btn-check.submit');
   const retryBtn=block.querySelector('.btn-check.retry');
 
@@ -960,7 +968,8 @@ function checkAnswer(idx,type,correctAnswer,explanation){
     userAnswer=parseInt(selected.value);
     isCorrect=userAnswer===correctAnswer;
   }else if(type==='fill'){
-    const input=$(`#fill-${idx}`);
+    const input=document.getElementById('fill-'+idx);
+    if(!input)return;
     userAnswer=(input.value||'').trim();
     // Flexible matching: ignore whitespace and common separators
     const normalize=s=>s.replace(/\s+/g,'').replace(/[,，、]/g,',').toLowerCase();
@@ -1004,8 +1013,9 @@ function checkAnswer(idx,type,correctAnswer,explanation){
 }
 
 function retryQuestion(idx){
-  const block=$(`#ex-${idx}`);
-  const fb=$(`#fb-${idx}`);
+  const block=document.getElementById('ex-'+idx);
+  const fb=document.getElementById('fb-'+idx);
+  if(!block)return;
   const submitBtn=block.querySelector('.btn-check.submit');
   const retryBtn=block.querySelector('.btn-check.retry');
 
@@ -1046,7 +1056,7 @@ function completeLevel(){
 
   // Offline tasks
   const offlineDone=[];
-  const offlineChecks=$$('#page-level .offline-item input[type=checkbox]');
+  const offlineChecks=document.querySelectorAll('#page-level .offline-item input[type=checkbox]');
   offlineChecks.forEach(cb=>{
     offlineDone.push(cb.checked);
     if(cb.checked)score+=1;
@@ -1102,8 +1112,8 @@ function completeLevel(){
   const resultDiv=document.createElement('div');
   resultDiv.className='result-banner '+(score>=10?'pass':'fail');
   resultDiv.innerHTML=`${score>=10?'🎉 探索完成！Zoe真棒！':'📋 今日足迹已记录。'} 星光：<b>${score}</b> 颗 | ${score>=10?'今天的旅程目标达成 ✅':'明天继续探索 💪'}`;
-  const container=$('#page-level');
-  const btn=$('#btn-complete');
+  const container=document.getElementById('page-level');
+  const btn=document.getElementById('btn-complete');
   if(btn)btn.replaceWith(resultDiv);
 
   toast(score>=10?'🎉 太棒了！星光+'+score:'📋 已保存。明天继续加油哦，Zoe！');
@@ -1486,9 +1496,9 @@ function renderAchievements(){
 
 // === HEADER ===
 function updateHeader(){
-  $('#hdr-points').textContent=state.points;
-  $('#hdr-streak').textContent=state.streak;
-  $('#hdr-badges').textContent=state.badges.filter(b=>b).length;
+  var hp=document.getElementById('hdr-points');if(hp)hp.textContent=state.points;
+  var hs=document.getElementById('hdr-streak');if(hs)hs.textContent=state.streak;
+  var hb=document.getElementById('hdr-badges');if(hb)hb.textContent=state.badges.filter(b=>b).length;
 }
 
 // === WELCOME ===
