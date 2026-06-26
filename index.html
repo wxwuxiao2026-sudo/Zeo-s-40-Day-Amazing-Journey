@@ -614,6 +614,11 @@ function openLevel(day){
     html+=`<div class="cheer-card"><div class="cheer-text">${lv.cheer}</div></div>`;
   }
 
+  // Diagnostic (Day 1)
+  if(lv.diagnostic){
+    html+=`<div class="quest-section" style="background:#fffbf5;border:1px dashed #f0d0a8"><h3 class="sec-title sec-kn"><span class="emoji">📋</span>起点评估</h3><div style="font-size:.9rem;line-height:1.8;color:#8b6e4e;padding:4px 8px">${lv.diagnostic}</div></div>`;
+  }
+
   // Knowledge summary
   html+=`<div class="quest-section" style="position:relative"><img src="上.jpg" class="deco-top-left" alt=""><h3 class="sec-title sec-kn"><span class="emoji">📖</span>今日知识点</h3>`;
   html+=`<div style="font-size:.9rem;line-height:1.8;color:#5a4a3a;padding:4px 8px">`;
@@ -699,6 +704,22 @@ function openLevel(day){
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
     html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本日学习资料</button></div>`;
+  }
+
+  // Science
+  if(lv.sc&&lv.sc.length){
+    html+=`<div class="quest-section"><h3 class="sec-title" style="--c1:#0097a7;--c2:#00bcd4"><span class="emoji">🔬</span>科学探索（${lv.sc.length}题）</h3>`;
+    lv.sc.forEach(function(eq,i){
+      var si='s'+i,scType=eq[0],scQ=eq[2],scOptsOrAns=eq[3],scCorrect=eq[4],scExpl=(eq[5]||'').replace(/'/g,'');
+      html+=`<div class="exercise-block" id="ex-${si}">`;
+      html+=`<div class="q"><span class="subj" style="background:#0097a7">科学</span>${scQ}</div>`;
+      if(scType==='choice'){var scOpts=scOptsOrAns.split('|');var scCI=typeof scCorrect==='number'?scCorrect:parseInt(scCorrect);html+=`<div class="opts">`;scOpts.forEach(function(opt,oi){html+=`<label><input type="radio" name="${si}" value="${oi}">${opt}</label>`;});html+=`</div>`;html+=`<button class="btn-check submit" onclick="checkSci('${si}','choice',${scCI},'${scExpl}')">✅ 提交</button>`;}
+      else{html+=`<input type="text" id="fill-${si}" placeholder="输入你的答案...">`;html+=`<button class="btn-check submit" onclick="checkSci('${si}','fill','${(scOptsOrAns+'').replace(/'/g,'')}','${scExpl}')">✅ 提交</button>`;}
+      html+=`<button class="btn-check retry" onclick="retrySci('${si}')" style="display:none">🔄 重做</button>`;
+      html+=`<div class="feedback" id="fb-${si}">${scExpl}</div>`;
+      html+=`</div>`;
+    });
+    html+=`</div>`;
   }
 
   // Daily recommendation
@@ -818,6 +839,9 @@ function checkAnswer(idx,type,correctAnswer,explanation){
     saveState();
   }
 }
+
+function checkSci(idx,type,correct,exp){var b=document.getElementById('ex-'+idx);if(!b)return;var fb=document.getElementById('fb-'+idx);var s=b.querySelector('.btn-check.submit'),r=b.querySelector('.btn-check.retry');var ok=false;if(type==='choice'){var sel=b.querySelector('input[type=radio]:checked');if(!sel){toast('请先选择一个答案');return;}ok=parseInt(sel.value)===correct;}else{var inp=document.getElementById('fill-'+idx);if(!inp)return;ok=(inp.value||'').trim().replace(/\s+/g,'')===(''+correct).replace(/\s+/g,'');}if(ok){b.classList.add('correct');fb.classList.add('show','ok');fb.textContent='✅ 正确！'+(exp||'');if(s)s.style.display='none';if(r)r.style.display='none';speak('答对了');}else{b.classList.add('wrong');fb.classList.add('show','no');fb.textContent='❌ 不对哦。'+(exp||'');if(s)s.style.display='none';if(r)r.style.display='inline-block';}}
+function retrySci(idx){var b=document.getElementById('ex-'+idx);if(!b)return;var fb=document.getElementById('fb-'+idx);b.classList.remove('correct','wrong');fb.classList.remove('show','ok','no');var s=b.querySelector('.btn-check.submit'),r=b.querySelector('.btn-check.retry');if(s)s.style.display='inline-block';if(r)r.style.display='none';b.querySelectorAll('input[type=radio]').forEach(function(ra){ra.checked=false;});var inp=document.getElementById('fill-'+idx);if(inp)inp.value='';}
 
 function retryQuestion(idx){
   const block=document.getElementById('ex-'+idx);
