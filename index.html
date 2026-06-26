@@ -172,6 +172,10 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 /* Stage emoji pulse */
 .stage-label .emoji{display:inline-block;animation:float 2.5s ease-in-out infinite}
 
+/* Letter header */
+.letter-header{position:relative;z-index:3;font-family:'ZCOOL KuaiLe',var(--font);font-size:1.5rem;color:#e8783e;text-align:left;width:100%;max-width:480px;padding:0 0 8px 12px;letter-spacing:2px;animation:welcomeIn .6s ease-out}
+.letter-header span{font-size:1.8rem;background:linear-gradient(135deg,#f08c4a,#e8783e,#f9a825);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
 /* Decorative sparkles on welcome overlay */
 .welcome-sparkle{position:fixed;pointer-events:none;z-index:3;font-size:1.2rem;animation:sparkleFloat 4s ease-in-out infinite;opacity:.6}
 .welcome-sparkle:nth-child(1){top:8%;left:5%;animation-delay:0s}
@@ -204,6 +208,9 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
   <span class="welcome-sparkle">🌟</span>
   <span class="welcome-sparkle">✨</span>
   <span class="welcome-sparkle">💛</span>
+
+  <!-- Letter header -->
+  <div class="letter-header">💌 给Zoe的 <span>三封信</span></div>
 
   <!-- Card 1: Your Wings -->
   <div class="welcome-cards">
