@@ -193,6 +193,10 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .progress-bar{position:relative;overflow:visible}
 .progress-bar::after{content:'✨';position:absolute;right:-4px;top:-8px;font-size:.8rem;animation:float 2s ease-in-out infinite}
 
+/* Map header and footer */
+.map-header{text-align:center;margin-bottom:10px;font-family:'ZCOOL KuaiLe',var(--font);font-size:1.15rem;color:#e8832a;letter-spacing:1px;animation:welcomeIn .6s ease-out}
+.map-footer{text-align:center;margin-top:16px;font-family:'ZCOOL KuaiLe',var(--font);font-size:1.2rem;background:linear-gradient(135deg,#e8783e,#f9a825);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;font-weight:700;animation:welcomeIn .8s ease-out}
+
 /* Stage emoji pulse */
 .stage-label .emoji{display:inline-block;animation:float 2.5s ease-in-out infinite}
 
@@ -512,7 +516,7 @@ function getLevelStatus(day){
 
 function renderMap(){
   const container=document.getElementById('page-map');
-  let html='<div style="text-align:center;margin-bottom:12px;font-size:.9rem;color:#999;">🌟 终点站：初中，Zoe来啦！</div>';
+  let html='<div class="map-header">🛫 起点：从加拿大带回的行囊</div>';
 
   for(let stage=0;stage<4;stage++){
     html+=`<div class="stage-label">${STAGE_EMOJI[stage]} ${STAGES[stage]}</div>`;
@@ -528,7 +532,7 @@ function renderMap(){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;margin-top:16px;font-size:.9rem;color:#999;">🛫 起点：从加拿大带回的行囊</div>';
+  html+='<div class="map-footer">🌟 终点站：初中，Zoe来啦！</div>';
   html+='<div style="text-align:center;margin-top:12px;font-size:.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4caf50;vertical-align:middle;margin:0 4px"></span>已完成 <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #d0c8b8;vertical-align:middle;margin:0 4px"></span>待探索</div>';
   container.innerHTML=html;
 
