@@ -129,7 +129,7 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-card .card-text{text-align:left;font-size:1rem;line-height:2.1;color:#4a3525;margin:12px 0;padding:0 4px;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',var(--font);font-weight:500;-webkit-font-smoothing:antialiased}
 .welcome-card .card-text .hl{color:#d4651c;font-weight:800;font-size:1.02em}
 .welcome-card .card-text .warm{background:linear-gradient(180deg,transparent 55%,#fef0d8 55%);padding:0 3px;font-weight:600}
-.welcome-nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.welcome-nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:24px;padding-top:16px;flex-wrap:wrap}
 .welcome-dots{display:flex;gap:8px}
 .welcome-dots .dot{width:8px;height:8px;border-radius:50%;background:#d4c4a8;transition:all .3s}
 .welcome-dots .dot.on{background:#e8832a;width:20px;border-radius:10px}
@@ -216,9 +216,9 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
   <div class="letter-header">💌 给Zoe的 <span>三封信</span></div>
 
   <!-- Card 1: Your Wings -->
-  <div class="welcome-cards" style="position:relative">
-  <span class="letter-photo-frame"><img src="照片.jpg" class="letter-photo" alt=""></span>
+  <div class="welcome-cards">
     <div class="welcome-card active" id="wCard1">
+      <span class="letter-photo-frame"><img src="照片.jpg" class="letter-photo" alt=""></span>
       <div class="step-num">📮 第一封</div>
       <div class="card-emoji">✈️</div>
       <div class="card-title">亲爱的Zoe，你有一双隐形的翅膀</div>
@@ -233,6 +233,7 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
     <!-- Card 2: New Journey Together -->
     <div class="welcome-card" id="wCard2">
+      <span class="letter-photo-frame"><img src="照片.jpg" class="letter-photo" alt=""></span>
       <div class="step-num">📮 第二封</div>
       <div class="card-emoji">🗺️</div>
       <div class="card-title">新的奇妙旅程，我们一起探索</div>
@@ -249,6 +250,7 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
     <!-- Card 3: We Are Always Here -->
     <div class="welcome-card" id="wCard3">
+      <span class="letter-photo-frame"><img src="照片.jpg" class="letter-photo" alt=""></span>
       <div class="step-num">📮 第三封</div>
       <div class="card-emoji">💛</div>
       <div class="card-title">你慢慢的勇敢前行，我们一直都在</div>
