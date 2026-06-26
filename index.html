@@ -1310,8 +1310,12 @@ function renderAchievements(){
     var allDone=completed>=10;
 
     html+='<div class="stage-badge-card" style="border-color:'+stageColors[i]+'">';
-    // Big badge icon
-    html+='<div class="stage-badge-icon" style="'+(allDone?'animation:float 2s ease-in-out infinite;':'opacity:.4;filter:grayscale(1);')+'">'+icon+'</div>';
+    // Big badge icon - progressively lights up with stars
+    var progress=completed/10;
+    var gray=Math.max(0,1-progress).toFixed(2);
+    var opac=(0.25+progress*0.75).toFixed(2);
+    var scale=(0.8+progress*0.2).toFixed(2);
+    html+='<div class="stage-badge-icon" style="opacity:'+opac+';filter:grayscale('+gray+');transform:scale('+scale+');'+(allDone?'animation:float 2s ease-in-out infinite;':'')+'">'+icon+'</div>';
     html+='<div class="stage-badge-name" style="color:'+stageColors[i]+'">'+STAGES[i]+'</div>';
     // Star grid
     html+='<div class="star-grid">';
