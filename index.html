@@ -27,8 +27,8 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px}
 .level-node{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;user-select:none}
 .level-node.done{background:#e8f5e9;border-color:var(--correct);color:#2e7d32}
-.level-node.current{background:#fff3e0;border-color:var(--accent);color:var(--accent);animation:pulse 2s infinite}
-.level-node.locked{background:#f5f5f5;border-color:#e0e0e0;color:var(--locked);cursor:not-allowed}
+.level-node.open{background:#fff;border-color:#d0c8b8;color:#8b7355;cursor:pointer}
+.level-node.open:hover{background:#fef9f2;border-color:var(--accent)}
 .level-node .day{font-size:.7rem;opacity:.7}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,131,42,.4)}50%{box-shadow:0 0 0 8px rgba(232,131,42,0)}}
 .level-node .star{position:absolute;top:-4px;right:-4px;font-size:.8rem}
@@ -755,16 +755,11 @@ function navigateTo(page,levelId){
 }
 
 // === MAP PAGE ===
-function isLevelUnlocked(day){
-  if(day===1)return true;
-  const prev=state.completed[day-1];
-  return prev&&prev.score>=5; // at least some progress
-}
+function isLevelUnlocked(day){return true;} // All days open
 function isLevelDone(day){return !!state.completed[day];}
 function getLevelStatus(day){
   if(isLevelDone(day))return 'done';
-  if(isLevelUnlocked(day))return day===state.currentDay?'current':'unlocked';
-  return 'locked';
+  return 'open';
 }
 
 function renderMap(){
@@ -786,7 +781,7 @@ function renderMap(){
   }
 
   html+='<div style="text-align:center;margin-top:16px;font-size:.9rem;color:#999;">🛫 起点：从加拿大带回的行囊</div>';
-  html+='<div style="text-align:center;margin-top:12px;font-size:.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4caf50;vertical-align:middle;margin:0 4px"></span>已探索 <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f08c4a;vertical-align:middle;margin:0 4px"></span>正在这里 <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#e0e0e0;border:2px solid #ccc;vertical-align:middle;margin:0 4px"></span>即将到达</div>';
+  html+='<div style="text-align:center;margin-top:12px;font-size:.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4caf50;vertical-align:middle;margin:0 4px"></span>已完成 <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #d0c8b8;vertical-align:middle;margin:0 4px"></span>待探索</div>';
   container.innerHTML=html;
 
   // Check badges
@@ -1142,11 +1137,6 @@ function completeLevel(){
   if(btn)btn.replaceWith(resultDiv);
 
   toast(score>=10?'🎉 太棒了！星光+'+score:'📋 已保存。明天继续加油哦，Zoe！');
-
-  // Unlock next day
-  if(day<40&&score>=5){
-    if(!state.completed[day+1])state.currentDay=day+1;
-  }
 
   // Stage badge
   const stage=lv.s;
