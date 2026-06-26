@@ -276,6 +276,32 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
 </div>
 
+<script>
+// Welcome navigation - standalone, runs before everything else
+var _wc=1;
+function _showCard(n){
+  _wc=n;
+  for(var i=1;i<=3;i++){
+    var c=document.getElementById('wCard'+i);if(c)c.style.display=i===n?'block':'none';
+    var d=document.getElementById('dot'+i);if(d)d.className='dot'+(i===n?' on':'');
+  }
+  var p=document.getElementById('wPrevBtn');if(p)p.style.display=n<=1?'none':'inline-block';
+  var nx=document.getElementById('wNextBtn');if(nx)nx.style.display=n>=3?'none':'inline-block';
+  var s=document.getElementById('wStartBtn');if(s)s.style.display=n>=3?'inline-block':'none';
+}
+function welcomeNext(){_showCard(_wc+1);}
+function welcomePrev(){_showCard(_wc-1);}
+function startJourney(){
+  try{state.seenIntro=true;saveState();}catch(e){}
+  var o=document.getElementById('welcomeOverlay');if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
+  if(typeof navigateTo==='function')navigateTo('map');
+}
+function skipWelcome(){
+  var o=document.getElementById('welcomeOverlay');if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
+  if(typeof navigateTo==='function')navigateTo('map');
+}
+</script>
+
 <header>
   <h1>✨ Zoe的40天奇妙旅程</h1>
   <div class="stats">
@@ -1464,43 +1490,10 @@ function updateHeader(){
 }
 
 // === WELCOME ===
-let welcomeCard=1;
-function showCard(n){
-  welcomeCard=n;
-  // Show/hide cards
-  for(let i=1;i<=3;i++){
-    const card=document.getElementById('wCard'+i);
-    if(card)card.style.display=(i===n)?'block':'none';
-  }
-  // Update dots
-  for(let i=1;i<=3;i++){
-    const dot=document.getElementById('dot'+i);
-    if(dot)dot.className='dot'+(i===n?' on':'');
-  }
-  // Update buttons
-  const prev=document.getElementById('wPrevBtn');
-  const next=document.getElementById('wNextBtn');
-  const start=document.getElementById('wStartBtn');
-  if(prev)prev.style.display=n<=1?'none':'inline-block';
-  if(next)next.style.display=n>=3?'none':'inline-block';
-  if(start)start.style.display=n>=3?'inline-block':'none';
-}
-function welcomeNext(){showCard(welcomeCard+1);}
-function welcomePrev(){showCard(welcomeCard-1);}
-function startJourney(){
-  state.seenIntro=true;saveState();
-  const o=document.getElementById('welcomeOverlay');
-  if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
-  speak('Zoe，慢慢走，我们一直都在。');navigateTo('map');
-}
-function skipWelcome(){
-  const o=document.getElementById('welcomeOverlay');
-  if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
-  navigateTo('map');
-}
+// Welcome functions now in standalone script before header - see above
 function showWelcome(){
   const o=document.getElementById('welcomeOverlay');
-  if(o){o.style.display='flex';o.style.opacity='1';showCard(1);}
+  if(o){o.style.display='flex';o.style.opacity='1';_showCard(1);}
 }
 
 // === INIT ===
