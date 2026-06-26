@@ -124,13 +124,13 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-card::after{content:'';position:absolute;top:16px;right:20px;width:44px;height:44px;border:2px dashed #d4c4a8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#c4a882;pointer-events:none}
 .welcome-card.active{display:block}
 @keyframes cardIn{0%{opacity:0;transform:translateX(40px)}100%{opacity:1;transform:translateX(0)}}
-.welcome-card .step-num{font-size:.7rem;color:#c4a882;letter-spacing:3px;margin-bottom:8px}
+.welcome-card .step-num{font-size:.8rem;color:#c4a882;letter-spacing:3px;margin-bottom:6px;font-weight:600}
 .welcome-card .card-emoji{font-size:2.8rem;margin:8px 0;animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 .welcome-card .card-title{font-family:'ZCOOL KuaiLe','ZCOOL QingKe HuangYou',var(--font);font-size:1.25rem;font-weight:400;color:#e8783e;margin:8px 0 6px;letter-spacing:1px}
-.welcome-card .card-text{text-align:left;font-size:.9rem;line-height:2;color:#6b5d50;margin:12px 0;padding:0 4px;font-family:'PingFang SC','STKaiti','KaiTi',var(--font)}
-.welcome-card .card-text .hl{color:#e8832a;font-weight:700}
-.welcome-card .card-text .warm{background:linear-gradient(180deg,transparent 60%,#fef0d8 60%);padding:0 2px}
+.welcome-card .card-text{text-align:left;font-size:1rem;line-height:2.1;color:#4a3525;margin:12px 0;padding:0 4px;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',var(--font);font-weight:500;-webkit-font-smoothing:antialiased}
+.welcome-card .card-text .hl{color:#d4651c;font-weight:800;font-size:1.02em}
+.welcome-card .card-text .warm{background:linear-gradient(180deg,transparent 55%,#fef0d8 55%);padding:0 3px;font-weight:600}
 .welcome-nav{position:relative;z-index:2;display:flex;align-items:center;gap:20px;margin-top:18px}
 .welcome-dots{display:flex;gap:8px}
 .welcome-dots .dot{width:8px;height:8px;border-radius:50%;background:#d4c4a8;transition:all .3s}
