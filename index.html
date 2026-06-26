@@ -392,7 +392,7 @@ function skipWelcome(){
   <button data-page="level" id="tab-level" style="display:none">📍 今日探索</button>
   <button data-page="errors">💭 成长印记</button>
   <button data-page="achievements">🎖️ 纪念章</button>
-  <button data-page="parent">💌 爸爸妈妈的话</button>
+  <button data-page="parent">💌 爸爸妈妈快来看</button>
 </nav>
 
 <main>
@@ -1022,7 +1022,7 @@ function renderParent(){
   const trendUp=recentScores.length>=3&&recentScores.slice(-3).every((s,i,arr)=>i===0||s>=arr[i-1]);
 
   // Build HTML
-  let html='<h3 style="margin-bottom:6px">💌 爸爸妈妈的话</h3>';
+  let html='<h3 style="margin-bottom:6px">💌 爸爸妈妈快来看</h3>';
   html+=`<p style="text-align:center;margin-bottom:16px;font-size:.85rem;color:#c4a882;line-height:1.6">亲爱的Zoe，每一天你都在靠近一个更丰富的自己。</p>`;
 
   // === SECTION 1: Overview ===
