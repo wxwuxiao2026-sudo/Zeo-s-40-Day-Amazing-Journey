@@ -597,6 +597,38 @@ function $$(sel){return document.querySelectorAll(sel);}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
 function speak(text){try{const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=0.9;speechSynthesis.speak(u);}catch(e){}}
 
+// === EXPORT / IMPORT ===
+function exportProgress(){
+  const data=JSON.stringify(state,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`Zoe旅程_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 进度已导出');
+}
+function importProgress(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(typeof imported.points!=='number')throw new Error('格式不对');
+      state={...DEFAULT_STATE,...imported};
+      saveState();
+      updateHeader();
+      toast('📤 进度已导入，刷新中…');
+      setTimeout(()=>navigateTo('parent'),500);
+    }catch(err){
+      toast('⚠️ 文件格式不正确，请重新选择');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
 // === NAVIGATION ===
 function showPage(name){
   $$('.page').forEach(p=>p.classList.remove('active'));
@@ -1047,8 +1079,13 @@ function renderParent(){
     html+=`<p style="text-align:center;color:#999;margin-top:24px">暂无错题记录 🎉</p>`;
   }
 
-  html+=`<p style="margin-top:24px;font-size:.75rem;color:#bbb;text-align:center">💛 Zoe的所有星光和足迹都保存在这个设备的浏览器里。换了设备也没关系，新的旅程随时可以开始。</p>`;
-html+=`<div style="text-align:center;margin-top:12px"><button class="btn-print" onclick="showWelcome()" style="display:inline-block;width:auto;padding:8px 24px">💌 再看一遍爸爸妈妈的信</button></div>`;
+  html+=`<p style="margin-top:24px;font-size:.75rem;color:#bbb;text-align:center">💛 Zoe的所有星光和足迹都保存在这个设备的浏览器里。</p>`;
+  html+=`<div style="text-align:center;margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">`;
+  html+=`<button class="btn-print" onclick="exportProgress()" style="display:inline-block;width:auto;padding:8px 20px">📥 导出进度</button>`;
+  html+=`<button class="btn-print" onclick="document.getElementById('importFile').click()" style="display:inline-block;width:auto;padding:8px 20px">📤 导入进度</button>`;
+  html+=`<button class="btn-print" onclick="showWelcome()" style="display:inline-block;width:auto;padding:8px 20px">💌 再看一遍信</button>`;
+  html+=`</div>`;
+  html+=`<input type="file" id="importFile" accept=".json" style="display:none" onchange="importProgress(event)">`;
   container.innerHTML=html;
 }
 
