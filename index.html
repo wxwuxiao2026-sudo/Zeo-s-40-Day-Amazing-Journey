@@ -575,12 +575,14 @@ const DEFAULT_STATE={
   longestStreak:0,
   lastCompleteDate:null,
   badges:[false,false,false,false], // 4 stage badges
-  seenIntro:false
+  seenIntro:false,
+  timeSpent:{}  // {day: totalMinutes}
 };
 
 let state=loadState();
 let currentLevel=null;
-let exerciseState={}; // {questionIndex: {answered,correct,userAnswer}}
+let exerciseState={};
+let levelStartTime=null; // timer for current level
 
 // === STORAGE ===
 function loadState(){
@@ -711,6 +713,7 @@ function renderMap(){
 function openLevel(day){
   currentLevel=LEVELS.find(l=>l.d===day);
   if(!currentLevel)return;
+  levelStartTime=Date.now();
 
   const lv=currentLevel;
   exerciseState={};
@@ -951,6 +954,14 @@ function completeLevel(){
   // Completion bonus
   if(score>=10)score+=5;
 
+  // Track time spent
+  if(levelStartTime){
+    const minutes=Math.round((Date.now()-levelStartTime)/60000);
+    if(!state.timeSpent[day])state.timeSpent[day]=0;
+    state.timeSpent[day]+=minutes;
+    levelStartTime=null;
+  }
+
   // Save
   const prev=state.completed[day];
   state.completed[day]={
@@ -1041,46 +1052,150 @@ function renderParent(){
   const completedDays=Object.keys(state.completed).length;
   const pct=Math.round(completedDays/totalDays*100);
   const stageDone=state.badges.filter(b=>b).length;
+  const completed=Object.entries(state.completed);
 
-  // Collect errors
-  let totalErrors=0;
-  const errorList=[];
+  // Time analysis
+  let totalMin=0,timeDays=0;
+  Object.values(state.timeSpent).forEach(m=>{if(m>0){totalMin+=m;timeDays++;}});
+  const avgMin=timeDays>0?Math.round(totalMin/timeDays):0;
+  const totalH=Math.floor(totalMin/60),remainM=totalMin%60;
+
+  // Score analysis
+  let totalScore=0,scoreDays=0,maxScore=0;
+  completed.forEach(([d,data])=>{totalScore+=data.score||0;scoreDays++;if(data.score>maxScore)maxScore=data.score;});
+  const avgScore=scoreDays>0?Math.round(totalScore/scoreDays):0;
+
+  // Subject analysis - classify errors by subject
+  let chErrors=0,maErrors=0;
+  const topicErrors={}; // topic -> count
   Object.entries(state.errors).forEach(([day,errs])=>{
+    const lv=LEVELS.find(l=>l.d===parseInt(day));
     errs.forEach(e=>{
-      totalErrors++;
-      errorList.push({day:parseInt(day),question:e.q,userAnswer:e.userAnswer,correctAnswer:e.correctAnswer});
+      const qData=lv?lv.q[e.idx]:null;
+      if(qData){
+        const subj=qData[1];
+        if(subj==='ch')chErrors++;
+        else maErrors++;
+        // Extract topic from question
+        const topic=extractTopic(qData[2],subj);
+        topicErrors[topic]=(topicErrors[topic]||0)+1;
+      }
     });
   });
 
-  let html=`
-    <h3 style="margin-bottom:16px">💌 爸爸妈妈的话</h3>
-    <p style="text-align:center;margin-bottom:20px;font-size:.95rem;color:#888;line-height:1.8">
-      亲爱的Zoe，<br>你在加拿大度过了三年精彩的时光，<br>现在带着独特的经历和视野回到中国。<br>这40天不是"补课"，而是一次探索——<br>每一天，你都在靠近一个更丰富的自己。<br>爸爸妈妈为你加油。💛
-    </p>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="val">${pct}%</div><div class="lbl">完成进度（${completedDays}/${totalDays}关）</div></div>
-      <div class="stat-card"><div class="val">${state.points}</div><div class="lbl">累计星光🌟</div></div>
-      <div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">连续探索（天）</div></div>
-      <div class="stat-card"><div class="val">${state.longestStreak}</div><div class="lbl">最长连续记录</div></div>
-      <div class="stat-card"><div class="val">${stageDone}/4</div><div class="lbl">纪念站到达</div></div>
-      <div class="stat-card"><div class="val">${totalErrors}</div><div class="lbl">成长印记数</div></div>
-    </div>
-    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
-    <p style="text-align:center;font-size:.85rem;color:#999;margin:4px 0 16px">40天旅程总进度 ${pct}%</p>
-  `;
+  // Recent trend (last 7 completed days)
+  const sortedDays=completed.map(([d,data])=>[parseInt(d),data]).sort((a,b)=>a[0]-b[0]);
+  const recent=sortedDays.slice(-7);
+  const recentScores=recent.map(([d,data])=>data.score);
+  const trendUp=recentScores.length>=3&&recentScores.slice(-3).every((s,i,arr)=>i===0||s>=arr[i-1]);
 
-  if(errorList.length>0){
-    html+=`<h4 style="margin-bottom:8px">💭 成长印记明细</h4>`;
-    html+=`<table class="error-table"><tr><th>关卡</th><th>题目</th><th>回答</th><th>正确答案</th></tr>`;
-    errorList.slice(-20).reverse().forEach(e=>{
-      html+=`<tr><td>Day ${e.day}</td><td>${e.question}</td><td style="color:var(--wrong)">${e.userAnswer}</td><td style="color:var(--correct)">${e.correctAnswer}</td></tr>`;
+  // Build HTML
+  let html='<h3 style="margin-bottom:6px">💌 爸爸妈妈的话</h3>';
+  html+=`<p style="text-align:center;margin-bottom:16px;font-size:.85rem;color:#c4a882;line-height:1.6">亲爱的Zoe，每一天你都在靠近一个更丰富的自己。</p>`;
+
+  // === SECTION 1: Overview ===
+  html+=`<div class="quest-section"><h3>📊 学习总览</h3>`;
+  html+=`<div class="stat-grid">`;
+  html+=`<div class="stat-card"><div class="val">${pct}%</div><div class="lbl">总进度（${completedDays}/40天）</div></div>`;
+  html+=`<div class="stat-card"><div class="val">${state.points}</div><div class="lbl">累计星光🌟</div></div>`;
+  html+=`<div class="stat-card"><div class="val">${state.streak}</div><div class="lbl">当前连续天数🔥</div></div>`;
+  html+=`<div class="stat-card"><div class="val">${avgMin}</div><div class="lbl">平均每天学习（分钟）</div></div>`;
+  html+=`<div class="stat-card"><div class="val">${avgScore}</div><div class="lbl">平均每天星光</div></div>`;
+  html+=`<div class="stat-card"><div class="val">${stageDone}/4</div><div class="lbl">已到达纪念站</div></div>`;
+  html+=`</div>`;
+  html+=`<div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>`;
+  html+=`<p style="text-align:center;font-size:.8rem;color:#999;margin:4px 0">40天旅程总进度 ${pct}%</p>`;
+  html+=`</div>`;
+
+  // === SECTION 2: Time Analysis ===
+  html+=`<div class="quest-section"><h3>⏱️ 学习时间分析</h3>`;
+  if(totalMin>0){
+    html+=`<p style="font-size:.9rem;line-height:1.8">📝 累计学习时间：<b>${totalH}小时${remainM}分钟</b></p>`;
+    html+=`<p style="font-size:.9rem;line-height:1.8">📅 已记录学习天：<b>${timeDays}</b> 天</p>`;
+    html+=`<p style="font-size:.9rem;line-height:1.8">⏰ 平均每天：<b>${avgMin}</b> 分钟</p>`;
+    if(avgMin<30)html+=`<p style="color:#e8832a;font-size:.85rem">💡 每天学习时间偏短，建议保持在30-60分钟/天，分2-3段完成效果更好。</p>`;
+    else if(avgMin>90)html+=`<p style="color:#e8832a;font-size:.85rem">💡 每天学习时间偏长，注意分段休息。每35分钟远眺一次，保护眼睛。</p>`;
+    else html+=`<p style="color:#4caf50;font-size:.85rem">✅ 学习时间适中，节奏很好。</p>`;
+    // Per-day time list
+    html+=`<div style="max-height:120px;overflow-y:auto;margin-top:8px;font-size:.8rem;color:#999">`;
+    Object.entries(state.timeSpent).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([d,m])=>{
+      if(m>0)html+=`<span style="display:inline-block;margin:2px 6px">Day${d}:${m}min</span>`;
     });
-    html+=`</table>`;
+    html+=`</div>`;
   }else{
-    html+=`<p style="text-align:center;color:#999;margin-top:24px">暂无错题记录 🎉</p>`;
+    html+=`<p style="color:#999;font-size:.9rem">还没有学习时间记录。每次完成探索时自动记录。</p>`;
+  }
+  html+=`</div>`;
+
+  // === SECTION 3: Learning Effectiveness ===
+  html+=`<div class="quest-section"><h3>📈 学习效果分析</h3>`;
+  if(completedDays>0){
+    // Score trend
+    html+=`<p style="font-size:.9rem;line-height:1.8">📊 最近完成：<b>${completedDays}</b> 天</p>`;
+    html+=`<p style="font-size:.9rem;line-height:1.8">⭐ 最高单日星光：<b>${maxScore}</b></p>`;
+    if(recentScores.length>=3){
+      html+=`<p style="font-size:.9rem;line-height:1.8">📈 近7天趋势：`;
+      if(trendUp)html+=`<span style="color:#4caf50">⬆ 稳定上升，Zoe越来越进入状态了！</span>`;
+      else html+=`<span style="color:#f9a825">↔ 有波动，这是正常的。关注是否遇到特别难的知识点。</span>`;
+      html+=`</p>`;
+      // Mini score chart
+      html+=`<div style="display:flex;align-items:flex-end;gap:4px;height:60px;margin:8px 0;padding:0 4px">`;
+      recentScores.forEach(s=>{
+        const h=Math.max(4,s/maxScore*56);
+        html+=`<div style="flex:1;background:linear-gradient(180deg,#f08c4a,#f9a825);border-radius:3px 3px 0 0;height:${h}px;position:relative" title="${s}分"><span style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:.6rem;color:#999">${s}</span></div>`;
+      });
+      html+=`</div><div style="height:18px"></div>`;
+    }
+    // Subject comparison
+    if(chErrors+maErrors>0){
+      const chPct=Math.round(chErrors/(chErrors+maErrors)*100);
+      html+=`<p style="font-size:.9rem;line-height:1.8">📝 错题分布：语文 <b>${chErrors}</b> 题 (${chPct}%) | 数学 <b>${maErrors}</b> 题 (${100-chPct}%)</p>`;
+      if(chPct>60)html+=`<p style="color:#e8832a;font-size:.85rem">💡 语文错题偏多，建议增加古诗文和字词复习时间，每天多读10分钟中文书。</p>`;
+      else if(chPct<40)html+=`<p style="color:#2196f3;font-size:.85rem">💡 数学错题偏多，建议多做计算练习和应用题分析，重点检查审题习惯。</p>`;
+      else html+=`<p style="color:#4caf50;font-size:.85rem">✅ 语文和数学错题比例均衡。</p>`;
+    }
+  }else{
+    html+=`<p style="color:#999">完成第一个探索日后，这里会显示效果分析。</p>`;
+  }
+  html+=`</div>`;
+
+  // === SECTION 4: Weak Spots ===
+  if(Object.keys(topicErrors).length>0){
+    html+=`<div class="quest-section"><h3>🎯 需要关注的知识点</h3>`;
+    const sorted=Object.entries(topicErrors).sort((a,b)=>b[1]-a[1]);
+    html+=`<table class="error-table"><tr><th>知识点/题型</th><th>出错次数</th><th>建议</th></tr>`;
+    sorted.slice(0,8).forEach(([topic,count])=>{
+      let suggestion=getTopicSuggestion(topic);
+      html+=`<tr><td>${topic}</td><td style="color:var(--wrong);font-weight:700">${count}</td><td style="font-size:.8rem">${suggestion}</td></tr>`;
+    });
+    html+=`</table></div>`;
   }
 
-  html+=`<p style="margin-top:24px;font-size:.75rem;color:#bbb;text-align:center">💛 Zoe的所有星光和足迹都保存在这个设备的浏览器里。</p>`;
+  // === SECTION 5: Parent Suggestions ===
+  html+=`<div class="quest-section"><h3>💡 给爸爸妈妈的建议</h3><div style="font-size:.9rem;line-height:2">`;
+  const suggestions=generateSuggestions(completedDays,pct,avgMin,avgScore,state.streak,chErrors,maErrors,trendUp,state);
+  suggestions.forEach(s=>html+=`<p>${s}</p>`);
+  html+=`</div></div>`;
+
+  // === SECTION 6: Plan Adjustment ===
+  html+=`<div class="quest-section"><h3>🔧 计划调整建议</h3><div style="font-size:.9rem;line-height:2">`;
+  if(completedDays<5){
+    html+=`<p>📌 刚刚开始，保持当前节奏，重点关注Zoe的接受度。如果连续3天情绪低落，适当减量。</p>`;
+  }else if(completedDays<15){
+    html+=`<p>📌 已进入适应期。根据错题分布，适当调整语文和数学的时间比例。如果某科错题明显更多，那一科每天多给10分钟。</p>`;
+    if(avgMin<25)html+=`<p>⏰ 日均时间偏短，建议尝试上午2段+下午1段，每段不超过35分钟。</p>`;
+  }else if(completedDays<30){
+    html+=`<p>📌 已过半程。回顾前两周的错题本，如果有反复出错的知识点，可以暂停新进度1-2天，专门消灭错题。</p>`;
+    html+=`<p>💪 这个阶段容易出现倦怠。如果Zoe开始抗拒，可以适当引入'加拿大式'学习活动（如探究项目）作为调剂。</p>`;
+  }else{
+    html+=`<p>📌 接近终点。重点转向初一预习（有理数、整式、七上古诗），减少小学内容的机械练习。</p>`;
+    html+=`<p>🎯 开始关注开学准备：作息调整、初中教材浏览、必读名著开始阅读。</p>`;
+  }
+  if(state.longestStreak>=7&&state.streak<3)html+=`<p>⚡ 曾经连续坚持${state.longestStreak}天，最近有所中断。不用焦虑，随时可以重新开始。重点是"愿意继续"，不是"从不间断"。</p>`;
+  html+=`</div></div>`;
+
+  // === Footer ===
+  html+=`<p style="margin-top:16px;font-size:.75rem;color:#bbb;text-align:center">💛 所有数据保存在本设备浏览器中。每周导出一次进度，防止数据丢失。</p>`;
   html+=`<div style="text-align:center;margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">`;
   html+=`<button class="btn-print" onclick="exportProgress()" style="display:inline-block;width:auto;padding:8px 20px">📥 导出进度</button>`;
   html+=`<button class="btn-print" onclick="document.getElementById('importFile').click()" style="display:inline-block;width:auto;padding:8px 20px">📤 导入进度</button>`;
@@ -1088,6 +1203,107 @@ function renderParent(){
   html+=`</div>`;
   html+=`<input type="file" id="importFile" accept=".json" style="display:none" onchange="importProgress(event)">`;
   container.innerHTML=html;
+}
+
+// === ANALYTICS HELPERS ===
+function extractTopic(question,subj){
+  const lower=question.toLowerCase();
+  // Chinese topics
+  if(subj==='ch'){
+    if(lower.includes('作者')||lower.includes('选自')||lower.includes('诗人'))return '文学常识';
+    if(lower.includes('默写')||lower.includes('填空')&&lower.includes('诗'))return '古诗背诵';
+    if(lower.includes('修辞')||lower.includes('比喻')||lower.includes('拟人'))return '修辞手法';
+    if(lower.includes('多音字')||lower.includes('拼音')||lower.includes('读音'))return '字音辨析';
+    if(lower.includes('解释')||lower.includes('意思')||lower.includes('翻译'))return '词句理解';
+    if(lower.includes('文言文')||lower.includes('杨氏')||lower.includes('伯牙')||lower.includes('学弈'))return '文言文';
+    if(lower.includes('说明方法')||lower.includes('列数字')||lower.includes('作比较'))return '说明文阅读';
+    if(lower.includes('中心句')||lower.includes('概括')||lower.includes('思想感情'))return '阅读理解';
+    if(lower.includes('书信')||lower.includes('格式'))return '写作格式';
+    return '语文综合';
+  }
+  // Math topics
+  if(lower.includes('方程')||lower.includes('解')&&lower.includes('x'))return '方程';
+  if(lower.includes('分数')&&(lower.includes('×')||lower.includes('÷')||lower.includes('乘')||lower.includes('除')))return '分数运算';
+  if(lower.includes('约分')||lower.includes('通分')||lower.includes('分数单位'))return '分数概念';
+  if(lower.includes('圆')||lower.includes('π'))return '圆';
+  if(lower.includes('圆柱')||lower.includes('圆锥'))return '圆柱圆锥';
+  if(lower.includes('百分数')||lower.includes('折扣')||lower.includes('%')||lower.includes('利息'))return '百分数';
+  if(lower.includes('比')&&lower.includes('比例'))return '比和比例';
+  if(lower.includes('面积')||lower.includes('周长'))return '几何计算';
+  if(lower.includes('三角形')||lower.includes('内角'))return '三角形';
+  if(lower.includes('负数')||lower.includes('绝对值')||lower.includes('数轴'))return '负数/有理数';
+  if(lower.includes('统计')||lower.includes('平均数'))return '统计';
+  if(lower.includes('行程')||lower.includes('工程')||lower.includes('速度'))return '应用题';
+  if(lower.includes('多音字')||lower.includes('拼音'))return '字音辨析';
+  return '数学综合';
+}
+
+function getTopicSuggestion(topic){
+  const map={
+    '古诗背诵':'每天早上朗读10分钟，用闪卡反复复习。先背后默。',
+    '文言文':'逐句口头翻译，不求一次全对。多看B站动画版理解大意。',
+    '字音辨析':'制作多音字卡片，正面写拼音，背面写例词。每天翻5张。',
+    '修辞手法':'用'答题模板'练习：用了XX+写出了XX+表达了XX。',
+    '阅读理解':'练习'谁+在什么情况下+做什么+结果'概括公式。',
+    '分数运算':'牢记'先约分再计算'。每天5道口算保持手感。',
+    '分数概念':'用切水果/分蛋糕的例子理解单位1。画图辅助。',
+    '方程':'强调规范步骤：设→找→列→解→验→答。不要跳步。',
+    '圆':'画图理解，圆面积公式推到过程自己画一遍。',
+    '圆柱圆锥':'动手做实验！用圆锥装水倒入圆柱，3次刚好满。',
+    '百分数':'在超市/网购时实际算折扣，生活中处处是百分数。',
+    '比和比例':'用'地图距离/实际距离'的例子理解比例尺。',
+    '几何计算':'画图标注已知条件，公式写旁边再代入。',
+    '三角形':'画图分类记忆。记住'两边之和大于第三边'。',
+    '负数/有理数':'用温度计/海拔的例子理解。数轴画出来就清楚了。',
+    '应用题':'读题3遍：圈关键词→画图/列表→找等量关系→列式。',
+    '统计':'在实际生活中找数据（如家庭开支），亲手画统计图。',
+    '文学常识':'用'作者+朝代+代表作'三要素卡片记忆。',
+    '词句理解':'查字典+联系上下文。不认识的词先猜再查。',
+    '说明文阅读':'找'列数字/作比较/打比方/举例子'四种方法的标志词。',
+    '写作格式':'每种格式（书信/日记/读后感）各写1篇模板贴在墙上。',
+    '语文综合':'多读中文课外书，每天20分钟。阅读量是最好的老师。',
+    '数学综合':'每天10道口算保持手感。错题本周末重新做一遍。'
+  };
+  return map[topic]||'针对这个知识点，翻看复习资料中对应章节，重新做3道同类题。';
+}
+
+function generateSuggestions(completedDays,pct,avgMin,avgScore,streak,chErrors,maErrors,trendUp,state){
+  const tips=[];
+  // Overall
+  if(completedDays===0){
+    tips.push('🌟 <b>还没开始？</b>今天就可以从Day 1出发！不需要准备任何东西，点开旅程地图，点击第一个探索站。');
+    return tips;
+  }
+  // Pace
+  const today=new Date().toISOString().split('T')[0];
+  const lastDate=state.lastCompleteDate;
+  if(lastDate&&lastDate!==today){
+    tips.push('📅 <b>今天还没打卡。</b>如果Zoe状态好，鼓励她完成今天的探索。如果累了，休息一天也没关系。');
+  }
+  // Streak
+  if(streak>=7) tips.push('🔥 <b>连续'+streak+'天！</b>这个坚持力太棒了。可以给Zoe一个小奖励（比如选一部电影、去喜欢的餐厅）。');
+  else if(streak>=3) tips.push('👍 连续'+streak+'天，势头不错。周末安排一次户外活动作为放松奖励。');
+  else if(streak===0&&completedDays>0) tips.push('💛 连续记录中断了。不用焦虑，更不要责备Zoe。明天是新的一天，随时可以继续。');
+  // Score
+  if(avgScore>0&&avgScore<8) tips.push('📊 平均星光偏低。可能题目难度偏大，建议陪Zoe一起看复习资料和视频，先理解再做练习。');
+  if(maxScore>=25) tips.push('⭐ Zoe有拿过高分的记录！说明她有这个能力。回顾高分那天是怎么做到的，复制成功的节奏。');
+  // Subject balance
+  if(chErrors+maErrors>0){
+    const chPct=Math.round(chErrors/(chErrors+maErrors)*100);
+    if(chPct>65) tips.push('📖 <b>语文需要更多关注。</b>建议：①每天增加10分钟朗读 ②古诗用闪卡每天过5首 ③每周写1篇日记。');
+    if(chPct<35) tips.push('🔢 <b>数学需要更多练习。</b>建议：①每天10道口算雷打不动 ②错题每周重做 ③应用题先画图再列式。');
+  }
+  // Time
+  if(avgMin>0&&avgMin<25) tips.push('⏰ 学习时间偏短（日均'+avgMin+'分钟）。建议固定每天上午一个35分钟块，形成习惯后再加第二个块。');
+  // Trend
+  if(trendUp) tips.push('📈 近7天趋势上升！Zoe找到了节奏。保持现状，不需要加量。');
+  // Emotional
+  if(completedDays>10&&avgScore<10) tips.push('💛 Zoe可能在经历困难期。建议：减量为先（每天只做最重要的3件事），多肯定努力而不是结果。可以说："我看到你今天很认真地完成了，这就够了。"');
+  // Canada advantage
+  if(completedDays>=5) tips.push('🌍 Zoe在加拿大的英语优势和探究能力是独特的财富。可以考虑每周1次用英语总结本周学习内容，保持双语优势。');
+  // General
+  if(tips.length<3) tips.push('✅ 整体进展不错。保持当前节奏，注意劳逸结合。Zoe在稳步前进中。');
+  return tips;
 }
 
 // === ERRORS PAGE ===
