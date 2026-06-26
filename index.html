@@ -260,15 +260,13 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
   <!-- Navigation -->
   <div class="welcome-nav">
-    <button id="wPrevBtn" style="display:none">◂ 上一封</button>
+    <button id="wPrevBtn" onclick="welcomePrev()" style="display:none">◂ 上一封</button>
     <div class="welcome-dots">
-      <div class="dot on" id="dot1"></div>
-      <div class="dot" id="dot2"></div>
-      <div class="dot" id="dot3"></div>
+      <div class="dot on" id="dot1"></div><div class="dot" id="dot2"></div><div class="dot" id="dot3"></div>
     </div>
-    <button id="wNextBtn">下一封 ▸</button>
-    <button id="wStartBtn" class="primary" style="display:none">✨ 出发！开始旅程</button>
-    <button class="ghost">下次再看</button>
+    <button id="wNextBtn" onclick="welcomeNext()">下一封 ▸</button>
+    <button id="wStartBtn" onclick="startJourney()" class="primary" style="display:none">✨ 出发！开始旅程</button>
+    <br><button class="ghost" onclick="skipWelcome()">下次再看</button>
   </div>
 
 </div>
@@ -1464,12 +1462,17 @@ function updateHeader(){
 let welcomeCard=1;
 function showCard(n){
   welcomeCard=n;
+  // Show/hide cards
   for(let i=1;i<=3;i++){
     const card=document.getElementById('wCard'+i);
-    const dot=document.getElementById('dot'+i);
-    if(card){card.style.display=(i===n)?'block':'none';if(i===n)card.classList.add('active');else card.classList.remove('active');}
-    if(dot){if(i===n)dot.classList.add('on');else dot.classList.remove('on');}
+    if(card)card.style.display=(i===n)?'block':'none';
   }
+  // Update dots
+  for(let i=1;i<=3;i++){
+    const dot=document.getElementById('dot'+i);
+    if(dot)dot.className='dot'+(i===n?' on':'');
+  }
+  // Update buttons
   const prev=document.getElementById('wPrevBtn');
   const next=document.getElementById('wNextBtn');
   const start=document.getElementById('wStartBtn');
@@ -1477,35 +1480,22 @@ function showCard(n){
   if(next)next.style.display=n>=3?'none':'inline-block';
   if(start)start.style.display=n>=3?'inline-block':'none';
 }
-function welcomeNext(){if(welcomeCard<3)showCard(welcomeCard+1);}
-function welcomePrev(){if(welcomeCard>1)showCard(welcomeCard-1);}
+function welcomeNext(){showCard(welcomeCard+1);}
+function welcomePrev(){showCard(welcomeCard-1);}
 function startJourney(){
-  state.seenIntro=true;
-  saveState();
-  const overlay=document.getElementById('welcomeOverlay');
-  if(overlay){overlay.style.opacity='0';setTimeout(()=>{overlay.style.display='none';},400);}
-  speak('Zoe，慢慢走，我们一直都在。');
-  navigateTo('map');
+  state.seenIntro=true;saveState();
+  const o=document.getElementById('welcomeOverlay');
+  if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
+  speak('Zoe，慢慢走，我们一直都在。');navigateTo('map');
 }
 function skipWelcome(){
-  const overlay=document.getElementById('welcomeOverlay');
-  if(overlay){overlay.style.opacity='0';setTimeout(()=>{overlay.style.display='none';},400);}
+  const o=document.getElementById('welcomeOverlay');
+  if(o){o.style.opacity='0';setTimeout(function(){o.style.display='none';},400);}
   navigateTo('map');
 }
 function showWelcome(){
-  const overlay=document.getElementById('welcomeOverlay');
-  if(overlay){overlay.style.display='flex';overlay.style.opacity='1';showCard(1);}
-  bindWelcomeButtons();
-}
-function bindWelcomeButtons(){
-  const prev=document.getElementById('wPrevBtn');
-  const next=document.getElementById('wNextBtn');
-  const start=document.getElementById('wStartBtn');
-  const ghost=document.querySelector('.welcome-nav button.ghost');
-  if(prev){prev.onclick=welcomePrev;}
-  if(next){next.onclick=welcomeNext;}
-  if(start){start.onclick=startJourney;}
-  if(ghost){ghost.onclick=skipWelcome;}
+  const o=document.getElementById('welcomeOverlay');
+  if(o){o.style.display='flex';o.style.opacity='1';showCard(1);}
 }
 
 // === INIT ===
