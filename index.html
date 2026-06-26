@@ -35,8 +35,16 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
 /* Level Detail */
 .quest-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.quest-section h3{font-size:1rem;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.quest-section h3 .emoji{font-size:1.3rem}
+.quest-section h3{font-size:1.15rem;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-family:'ZCOOL KuaiLe',var(--font);font-weight:400}
+.quest-section h3 .emoji{font-size:1.4rem}
+.sec-title{background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:none;letter-spacing:1px}
+.sec-kn{--c1:#e8783e;--c2:#f9a825}
+.sec-tb{--c1:#5c6bc0;--c2:#7c4dff}
+.sec-rec{--c1:#e040a0;--c2:#f06292}
+.sec-fc{--c1:#00897b;--c2:#26a69a}
+.sec-vid{--c1:#1e88e5;--c2:#42a5f5}
+.sec-ex{--c1:#43a047;--c2:#66bb6a}
+.sec-off{--c1:#8d6e63;--c2:#a1887f}
 .flashcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .flashcard{background:#fef9e7;border:1px solid #f0e4b8;border-radius:10px;padding:12px;text-align:center;cursor:pointer;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s;user-select:none}
 .flashcard.flipped{background:#e8f5e9;border-color:#a5d6a7}
@@ -592,7 +600,7 @@ function openLevel(day){
   `;
 
   // Knowledge summary
-  html+=`<div class="quest-section" style="position:relative"><img src="上.jpg" class="deco-top-left" alt=""><h3><span class="emoji">📖</span>今日知识点</h3>`;
+  html+=`<div class="quest-section" style="position:relative"><img src="上.jpg" class="deco-top-left" alt=""><h3 class="sec-title sec-kn"><span class="emoji">📖</span>今日知识点</h3>`;
   html+=`<div style="font-size:.9rem;line-height:1.8;color:#5a4a3a;padding:4px 8px">`;
   html+=genKnowledge(lv);
   html+=`</div></div>`;
@@ -600,7 +608,7 @@ function openLevel(day){
   // Textbook content (collapsible)
   if(lv.tb&&lv.tb.length){
     html+=`<div class="quest-section">`;
-    html+=`<h3 style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">📚</span>课本内容 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
+    html+=`<h3 class="sec-title sec-tb" style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">📚</span>课本内容 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
     html+=`<div class="tb-content" style="display:none;font-size:.9rem;line-height:2;color:#4a3525;padding:8px 12px;background:#fdfaf5;border-radius:10px;border:1px dashed #e8d8c0;max-height:400px;overflow-y:auto">`;
     lv.tb.forEach(function(t){html+=t+'<br>';});
     html+=`</div></div>`;
@@ -608,7 +616,7 @@ function openLevel(day){
 
   // Flashcard
   if(lv.fc||lv.fm){
-    html+=`<div class="quest-section no-print"><h3><span class="emoji">🃏</span>闪卡复习（10分钟）</h3><div class="flashcard-grid">`;
+    html+=`<div class="quest-section no-print"><h3 class="sec-title sec-fc"><span class="emoji">🃏</span>闪卡复习（10分钟）</h3><div class="flashcard-grid">`;
     if(lv.fc)html+=`<div class="flashcard" onclick="this.classList.toggle('flipped')">🇨🇳 语文<br><small>${lv.fc||'无(第一天)'}</small></div>`;
     if(lv.fm)html+=`<div class="flashcard" onclick="this.classList.toggle('flipped')">🔢 数学<br><small>${lv.fm||'无(第一天)'}</small></div>`;
     html+=`</div></div>`;
@@ -616,7 +624,7 @@ function openLevel(day){
 
   // Videos
   if(lv.v&&lv.v.length>0){
-    html+=`<div class="quest-section no-print"><h3><span class="emoji">🎬</span>视频课程（15-20分钟）</h3>`;
+    html+=`<div class="quest-section no-print"><h3 class="sec-title sec-vid"><span class="emoji">🎬</span>视频课程（15-20分钟）</h3>`;
     lv.v.forEach(v=>{
       html+=`<a href="${v[1]}" target="_blank" rel="noopener" class="video-link">📺 ${v[0]}</a>`;
     });
@@ -625,7 +633,7 @@ function openLevel(day){
 
   // Exercises
   if(lv.q&&lv.q.length>0){
-    html+=`<div class="quest-section"><h3><span class="emoji">✏️</span>在线练习（${lv.q.length}题）</h3>`;
+    html+=`<div class="quest-section"><h3 class="sec-title sec-ex"><span class="emoji">✏️</span>在线练习（${lv.q.length}题）</h3>`;
     html+=`<div id="exercises-container">`;
     lv.q.forEach((eq,i)=>{
       const [type,subj,question,optsOrAns,correct,explanation]=eq;
@@ -671,7 +679,7 @@ function openLevel(day){
 
   // Offline tasks
   if(lv.off&&lv.off.length>0){
-    html+=`<div class="quest-section no-print" style="position:relative"><img src="下.jpg" class="deco-bottom-right" alt=""><h3><span class="emoji">📝</span>线下练习</h3>`;
+    html+=`<div class="quest-section no-print" style="position:relative"><img src="下.jpg" class="deco-bottom-right" alt=""><h3 class="sec-title sec-off"><span class="emoji">📝</span>线下练习</h3>`;
     lv.off.forEach((ot,oi)=>{
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
@@ -681,7 +689,7 @@ function openLevel(day){
   // Daily recommendation
   if(lv.rec&&lv.rec.length){
     html+=`<div class="quest-section no-print">`;
-    html+=`<h3 style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">🎬</span>今日推广 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
+    html+=`<h3 class="sec-title sec-rec" style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">🎬</span>今日推荐 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
     html+=`<div style="display:none;font-size:.9rem;line-height:2;color:#5a4a3a;padding:8px 12px;background:#fdfaf5;border-radius:10px">`;
     lv.rec.forEach(function(r){html+=r+'<br>';});
     html+=`</div></div>`;
