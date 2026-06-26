@@ -1427,13 +1427,16 @@ function updateHeader(){
 // === WELCOME ===
 let welcomeCard=1;
 function showCard(n){
-  for(let i=1;i<=3;i++){
-    const card=$('#wCard'+i);const dot=$('#dot'+i);
-    if(card)card.classList.toggle('active',i===n);
-    if(dot)dot.classList.toggle('on',i===n);
-  }
   welcomeCard=n;
-  const prev=$('#wPrevBtn');const next=$('#wNextBtn');const start=$('#wStartBtn');
+  for(let i=1;i<=3;i++){
+    const card=document.getElementById('wCard'+i);
+    const dot=document.getElementById('dot'+i);
+    if(card){card.style.display=(i===n)?'block':'none';if(i===n)card.classList.add('active');else card.classList.remove('active');}
+    if(dot){if(i===n)dot.classList.add('on');else dot.classList.remove('on');}
+  }
+  const prev=document.getElementById('wPrevBtn');
+  const next=document.getElementById('wNextBtn');
+  const start=document.getElementById('wStartBtn');
   if(prev)prev.style.display=n<=1?'none':'inline-block';
   if(next)next.style.display=n>=3?'none':'inline-block';
   if(start)start.style.display=n>=3?'inline-block':'none';
@@ -1443,20 +1446,18 @@ function welcomePrev(){if(welcomeCard>1)showCard(welcomeCard-1);}
 function startJourney(){
   state.seenIntro=true;
   saveState();
-  const overlay=$('#welcomeOverlay');
-  if(overlay)overlay.style.opacity='0';
-  setTimeout(()=>{if(overlay)overlay.style.display='none';},400);
+  const overlay=document.getElementById('welcomeOverlay');
+  if(overlay){overlay.style.opacity='0';setTimeout(()=>{overlay.style.display='none';},400);}
   speak('Zoe，慢慢走，我们一直都在。');
   navigateTo('map');
 }
 function skipWelcome(){
-  const overlay=$('#welcomeOverlay');
-  if(overlay)overlay.style.opacity='0';
-  setTimeout(()=>{if(overlay)overlay.style.display='none';},400);
+  const overlay=document.getElementById('welcomeOverlay');
+  if(overlay){overlay.style.opacity='0';setTimeout(()=>{overlay.style.display='none';},400);}
   navigateTo('map');
 }
 function showWelcome(){
-  const overlay=$('#welcomeOverlay');
+  const overlay=document.getElementById('welcomeOverlay');
   if(overlay){overlay.style.display='flex';overlay.style.opacity='1';showCard(1);}
 }
 
