@@ -101,25 +101,27 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
 /* Print */
 @media print{
-  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.deco-top-left,.deco-bottom-right,.back-btn,.level-day-badge,#btn-complete{display:none!important}
-  body{background:#fff;color:#000;font-size:12pt}
-  main{padding:0;max-width:none}
+  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.deco-top-left,.deco-bottom-right,.back-btn,.level-day-badge,#btn-complete,.cheer-card,.corner-top-left,.corner-bottom-right,.welcome-nav{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt;line-height:1.6}
+  main{padding:0;max-width:none;margin:0}
   .page{display:none!important}
   #page-level{display:block!important}
-  .quest-section{box-shadow:none;border:1px solid #ddd;break-inside:avoid;margin-bottom:10px;padding:12px}
-  .quest-section h3{font-size:13pt;margin-bottom:6px;color:#333}
+  .quest-section{box-shadow:none;border:1px solid #ccc;break-inside:avoid;margin-bottom:8px;padding:10px;border-radius:6px}
+  .quest-section h3{font-size:12pt;margin-bottom:4px;color:#333;-webkit-text-fill-color:#333!important;background:none!important}
   .quest-section h3 .emoji,.quest-section h3 .arrow{display:none}
-  .exercise-block{border:1px solid #eee;padding:8px;margin:4px 0;break-inside:avoid}
-  .exercise-block .q{font-size:10pt;margin-bottom:4px}
-  .exercise-block .q .subj{display:inline;font-size:8pt;padding:1px 4px;border-radius:3px}
-  .exercise-block .opts label{font-size:9pt;padding:2px 6px;display:block}
-  .exercise-block input[type=text]{border:1px solid #ccc;padding:4px 8px;font-size:10pt;width:80%}
+  .quest-section::before{display:none!important}
+  .exercise-block{border:1px solid #ddd;padding:6px 8px;margin:3px 0;break-inside:avoid;border-radius:4px}
+  .exercise-block .q{font-size:10pt;margin-bottom:3px}
+  .exercise-block .q .subj{display:inline;font-size:7pt;padding:1px 3px;border-radius:2px;color:#fff!important}
+  .exercise-block .opts label{font-size:9pt;padding:1px 4px;display:block}
+  .exercise-block input[type=text]{border:1px solid #ccc;padding:2px 6px;font-size:9pt;width:70%}
   .exercise-block .btn-check,.exercise-block .feedback{display:none!important}
   .tb-content{display:block!important;max-height:none!important;border:none!important;background:#fff!important;font-size:10pt}
-  h2{font-size:14pt;margin-bottom:8px;text-align:center}
-  h2::before{content:'✨ Zoe的40天奇妙旅程 · ';font-size:10pt;color:#999;display:block;font-weight:400}
-  @page{margin:1.5cm}
+  h2{font-size:13pt;margin-bottom:6px;text-align:center}
+  h2::before{content:'✨ Zoe的40天奇妙旅程 · ';font-size:9pt;color:#999;display:block;font-weight:400}
+  @page{margin:1.2cm}
   .no-print{display:none!important}
+  .quest-section[style*=\"position:relative\"] img{display:none!important}
 }
 
 /* Tablet */
@@ -1106,7 +1108,7 @@ function renderParent(){
   html+=`</div></div>`;
 
   // === Footer ===
-  html+=`<p style="margin-top:16px;font-size:.75rem;color:#bbb;text-align:center">💛 所有数据保存在本设备浏览器中。每周导出一次进度，防止数据丢失。</p>`;
+  html+=`<p style="margin-top:16px;font-size:.8rem;color:#e8832a;text-align:center;background:#fff8e1;padding:8px 12px;border-radius:8px"><b>💡 提醒：</b>建议每周导出一次进度存档。如需重置所有数据，在网址后加 <b>?reset</b>（会弹出确认框，不会误删）。</p>`;
   html+=`<div style="text-align:center;margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">`;
   html+=`<button class="btn-print" onclick="exportProgress()" style="display:inline-block;width:auto;padding:8px 20px">📥 导出进度</button>`;
   html+=`<button class="btn-print" onclick="document.getElementById('importFile').click()" style="display:inline-block;width:auto;padding:8px 20px">📤 导入进度</button>`;
@@ -1317,10 +1319,15 @@ function init(){
   };
   // ?reset = clear ALL progress (use with caution)
   if(location.search.includes('reset')){
-    if(confirm('⚠️ 这将清除Zoe的所有学习进度（星光、纪念章、完成记录），确定吗？')){
-      localStorage.removeItem('studyquest40');
-      state=JSON.parse(JSON.stringify(DEFAULT_STATE));
-      saveState();
+    var ok1=confirm('⚠️ 这将清除Zoe的所有学习进度（星光、纪念章、完成记录）。确定要重置吗？');
+    if(ok1){
+      var ok2=confirm('再次确认：所有40天的数据将被永久清除，无法恢复。要继续吗？');
+      if(ok2){
+        localStorage.removeItem('studyquest40');
+        state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState();
+        toast('已重置所有数据');
+      }
     }
     history.replaceState({},'',location.pathname);
   }
