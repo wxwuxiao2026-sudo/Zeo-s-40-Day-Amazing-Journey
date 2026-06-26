@@ -93,7 +93,7 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
 /* Print */
 @media print{
-  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.corner-top-left,.corner-bottom-right,.back-btn,.level-day-badge,#btn-complete{display:none!important}
+  header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.deco-top-left,.deco-bottom-right,.back-btn,.level-day-badge,#btn-complete{display:none!important}
   body{background:#fff;color:#000;font-size:12pt}
   main{padding:0;max-width:none}
   .page{display:none!important}
@@ -154,9 +154,9 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-nav button.ghost{background:transparent;color:#bbb;font-size:.8rem;text-decoration:underline;box-shadow:none;min-height:36px;display:block;margin:8px auto 0}
 
 /* Corner decorations */
-.corner-top-left{position:fixed;top:100px;left:8px;width:80px;height:auto;opacity:.85;mix-blend-mode:multiply;pointer-events:none;z-index:0;transition:opacity .3s}
-.corner-bottom-right{position:fixed;bottom:16px;right:8px;width:90px;height:auto;opacity:.85;mix-blend-mode:multiply;pointer-events:none;z-index:0;transition:opacity .3s}
-@media(min-width:768px){.corner-top-left{width:100px;left:16px}.corner-bottom-right{width:110px;right:16px}}
+.deco-top-left{position:absolute;top:6px;left:6px;width:50px;height:auto;opacity:.8;mix-blend-mode:multiply;pointer-events:none;z-index:0}
+.deco-bottom-right{position:absolute;bottom:6px;right:6px;width:55px;height:auto;opacity:.8;mix-blend-mode:multiply;pointer-events:none;z-index:0}
+@media(min-width:768px){.deco-top-left{width:60px;left:8px}.deco-bottom-right{width:65px;right:8px}}
 
 /* Playful enhancements */
 .quest-section{border-radius:18px;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
@@ -909,8 +909,6 @@ function openLevel(day){
   const saved=state.completed[day];
 
   let html=`
-    <img src="上.jpg" class="corner-top-left" alt="">
-    <img src="下.jpg" class="corner-bottom-right" alt="">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;position:relative;z-index:1">
       <button onclick="navigateTo('map')" class="back-btn">← 地图</button>
       <div class="level-day-badge">${stageEmoji} 第 ${lv.d} 站</div>
@@ -920,7 +918,7 @@ function openLevel(day){
   `;
 
   // Knowledge summary
-  html+=`<div class="quest-section"><h3><span class="emoji">📖</span>今日知识点</h3>`;
+  html+=`<div class="quest-section" style="position:relative"><img src="上.jpg" class="deco-top-left" alt=""><h3><span class="emoji">📖</span>今日知识点</h3>`;
   html+=`<div style="font-size:.9rem;line-height:1.8;color:#5a4a3a;padding:4px 8px">`;
   html+=genKnowledge(lv);
   html+=`</div></div>`;
@@ -999,7 +997,7 @@ function openLevel(day){
 
   // Offline tasks
   if(lv.off&&lv.off.length>0){
-    html+=`<div class="quest-section no-print"><h3><span class="emoji">📝</span>线下练习</h3>`;
+    html+=`<div class="quest-section no-print" style="position:relative"><img src="下.jpg" class="deco-bottom-right" alt=""><h3><span class="emoji">📝</span>线下练习</h3>`;
     lv.off.forEach((ot,oi)=>{
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
