@@ -289,7 +289,7 @@ function _showCard(n){
   var nx=document.getElementById('wNextBtn');if(nx)nx.style.display=n>=3?'none':'inline-block';
   var s=document.getElementById('wStartBtn');if(s)s.style.display=n>=3?'inline-block':'none';
 }
-function welcomeNext(){_showCard(_wc+1);}
+function welcomeNext(){document.getElementById('wNextBtn').textContent='✓已点击';_showCard(_wc+1);}
 function welcomePrev(){_showCard(_wc-1);}
 function startJourney(){
   try{state.seenIntro=true;saveState();}catch(e){}
