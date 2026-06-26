@@ -23,7 +23,8 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .page.active{display:block}
 
 /* Map */
-.stage-label{font-weight:700;margin:16px 0 6px;font-size:.95rem;display:flex;align-items:center;gap:6px}
+.stage-label{font-family:'ZCOOL KuaiLe',var(--font);font-weight:400;margin:16px 0 6px;font-size:1rem;display:flex;align-items:center;gap:6px;letter-spacing:1px}
+.stage-label.s0{color:#2196f3}.stage-label.s1{color:#4caf50}.stage-label.s2{color:#9c27b0}.stage-label.s3{color:#f08c4a}
 .level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px}
 .level-node{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;user-select:none}
 .level-node.done{background:#e8f5e9;border-color:var(--correct);color:#2e7d32}
@@ -519,7 +520,7 @@ function renderMap(){
   let html='<div class="map-header">🛫 起点：从加拿大带回的行囊</div>';
 
   for(let stage=0;stage<4;stage++){
-    html+=`<div class="stage-label">${STAGE_EMOJI[stage]} ${STAGES[stage]}</div>`;
+    html+=`<div class="stage-label s${stage}">${STAGE_EMOJI[stage]} ${STAGES[stage]}</div>`;
     html+='<div class="level-grid">';
     for(let d=stage*10+1;d<=Math.min(stage*10+10,40);d++){
       const status=getLevelStatus(d);
