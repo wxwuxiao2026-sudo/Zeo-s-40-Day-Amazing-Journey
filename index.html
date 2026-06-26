@@ -805,6 +805,22 @@ function renderMap(){
   updateHeader();
 }
 
+// === KNOWLEDGE GENERATOR ===
+function genKnowledge(lv){
+  var parts=[];
+  var chTopics=[],maTopics=[];
+  (lv.q||[]).forEach(function(q){
+    var subj=q[1],topic=q[2];
+    if(subj==='ch'&&chTopics.indexOf(topic)<0)chTopics.push(topic);
+    if(subj==='ma'&&maTopics.indexOf(topic)<0)maTopics.push(topic);
+  });
+  if(chTopics.length)parts.push('🇨🇳 <b>语文：</b>'+chTopics.slice(0,5).join('；'));
+  if(maTopics.length)parts.push('🔢 <b>数学：</b>'+maTopics.slice(0,5).join('；'));
+  if(lv.fc)parts.push('🃏 <b>闪卡复习：</b>'+lv.fc);
+  if(!parts.length)parts.push('今天的任务是休息和回顾，没有新的知识点。放松心情，享受这一天吧 ☀️');
+  return parts.join('<br>');
+}
+
 // === LEVEL PAGE ===
 function openLevel(day){
   try{
@@ -833,6 +849,12 @@ function openLevel(day){
     </div>
     <h2 style="text-align:center;margin-bottom:16px;font-size:1.2rem;position:relative;z-index:1">${lv.t}</h2>
   `;
+
+  // Knowledge summary
+  html+=`<div class="quest-section"><h3><span class="emoji">📖</span>今日知识点</h3>`;
+  html+=`<div style="font-size:.9rem;line-height:1.8;color:#5a4a3a;padding:4px 8px">`;
+  html+=genKnowledge(lv);
+  html+=`</div></div>`;
 
   // Flashcard
   if(lv.fc||lv.fm){
