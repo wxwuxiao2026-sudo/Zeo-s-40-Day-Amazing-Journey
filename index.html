@@ -120,10 +120,9 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-overlay{position:fixed;inset:0;background:linear-gradient(170deg,#fdf6ee 0%,#fef3e5 25%,#fef8f0 50%,#fdf2e6 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;padding:20px}
 .welcome-overlay::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(180,160,140,.08) 28px,rgba(180,160,140,.08) 29px);pointer-events:none;z-index:0}
 .welcome-cards{position:relative;z-index:1;max-width:480px;width:100%}
-.welcome-card{display:none;background:linear-gradient(180deg,#fffefb 0%,#fffb f5 100%);border-radius:20px;padding:32px 24px 24px;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.04);text-align:center;animation:cardIn .5s ease-out;position:relative;overflow:hidden}
-.welcome-card::after{content:'';position:absolute;top:16px;right:20px;width:44px;height:44px;border:2px dashed #d4c4a8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#c4a882;pointer-events:none}
+.welcome-card{display:none;background:linear-gradient(180deg,#fffefb 0%,#fffbf5 100%);border-radius:20px;padding:32px 24px 24px;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.04);text-align:center;position:relative;overflow:hidden}
+.welcome-card::after{content:'';position:absolute;top:16px;right:20px;width:44px;height:44px;border:2px dashed #d4c4a8;border-radius:50%;pointer-events:none}
 .welcome-card.active{display:block}
-@keyframes cardIn{0%{opacity:0;transform:translateX(40px)}100%{opacity:1;transform:translateX(0)}}
 .welcome-card .step-num{font-size:.8rem;color:#c4a882;letter-spacing:3px;margin-bottom:6px;font-weight:600}
 .welcome-card .card-emoji{font-size:2.8rem;margin:8px 0;animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -131,14 +130,14 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-card .card-text{text-align:left;font-size:1rem;line-height:2.1;color:#4a3525;margin:12px 0;padding:0 4px;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',var(--font);font-weight:500;-webkit-font-smoothing:antialiased}
 .welcome-card .card-text .hl{color:#d4651c;font-weight:800;font-size:1.02em}
 .welcome-card .card-text .warm{background:linear-gradient(180deg,transparent 55%,#fef0d8 55%);padding:0 3px;font-weight:600}
-.welcome-nav{position:relative;z-index:2;display:flex;align-items:center;gap:20px;margin-top:18px}
+.welcome-nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap}
 .welcome-dots{display:flex;gap:8px}
 .welcome-dots .dot{width:8px;height:8px;border-radius:50%;background:#d4c4a8;transition:all .3s}
 .welcome-dots .dot.on{background:#e8832a;width:20px;border-radius:10px}
-.welcome-nav button{border:none;background:rgba(255,255,255,.8);color:#8b7355;font-size:.9rem;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:600;transition:all .2s;backdrop-filter:blur(4px)}
-.welcome-nav button:active{background:#fff;transform:scale(.96)}
-.welcome-nav button.primary{background:linear-gradient(135deg,#f08c4a,#e8783e);color:#fff;padding:10px 32px;box-shadow:0 3px 12px rgba(240,140,74,.35)}
-.welcome-nav button.ghost{background:transparent;color:#bbb;font-size:.8rem;text-decoration:underline}
+.welcome-nav button{border:none;background:#fff;color:#8b7355;font-size:1rem;padding:12px 22px;border-radius:24px;cursor:pointer;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08);min-height:44px;min-width:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.welcome-nav button:active{background:#fef3e5;transform:scale(.96)}
+.welcome-nav button.primary{background:#f08c4a;color:#fff;padding:10px 32px;box-shadow:0 3px 12px rgba(240,140,74,.35)}
+.welcome-nav button.ghost{background:transparent;color:#bbb;font-size:.8rem;text-decoration:underline;box-shadow:none;min-height:36px;display:block;margin:8px auto 0}
 
 /* Corner decorations */
 .corner-top-left{position:fixed;top:100px;left:8px;width:80px;height:auto;opacity:.85;mix-blend-mode:multiply;pointer-events:none;z-index:0;transition:opacity .3s}
@@ -261,15 +260,15 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 
   <!-- Navigation -->
   <div class="welcome-nav">
-    <button id="wPrevBtn" onclick="welcomePrev()" style="display:none">← 上一封</button>
+    <button id="wPrevBtn" style="display:none">◂ 上一封</button>
     <div class="welcome-dots">
       <div class="dot on" id="dot1"></div>
       <div class="dot" id="dot2"></div>
       <div class="dot" id="dot3"></div>
     </div>
-    <button id="wNextBtn" onclick="welcomeNext()">下一封 →</button>
-    <button id="wStartBtn" onclick="startJourney()" class="primary" style="display:none">✨ 出发！开始旅程</button>
-    <button class="ghost" onclick="skipWelcome()">下次再看</button>
+    <button id="wNextBtn">下一封 ▸</button>
+    <button id="wStartBtn" class="primary" style="display:none">✨ 出发！开始旅程</button>
+    <button class="ghost">下次再看</button>
   </div>
 
 </div>
