@@ -100,6 +100,19 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .badge-card .name{font-weight:700;margin:4px 0;font-size:.9rem}
 .badge-card .cond{font-size:.75rem;color:#999}
 
+/* Stage badge cards */
+.stage-badge-card{background:var(--card);border-radius:18px;padding:18px 14px 14px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px;border-left:4px solid #ccc;transition:all .3s}
+.stage-badge-icon{font-size:3rem;margin:4px 0}
+.stage-badge-name{font-family:'ZCOOL KuaiLe',var(--font);font-size:1.1rem;font-weight:700;margin:4px 0 10px;letter-spacing:1px}
+.star-grid{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin:8px 0}
+.star-slot{font-size:1.6rem;transition:all .3s;display:inline-block}
+.star-slot.lit{animation:popIn .3s ease-out;filter:none}
+.star-slot:not(.lit){opacity:.3;filter:grayscale(.8)}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.4)}100%{transform:scale(1)}}
+.stage-badge-status{font-size:.85rem;font-weight:600;margin-top:4px}
+.mini-badge{background:var(--card);border-radius:14px;padding:14px;text-align:center;box-shadow:var(--shadow);opacity:.5;transition:all .3s}
+.mini-badge.earned{opacity:1;border:2px solid var(--gold)}
+
 /* Print */
 @media print{
   header,nav.tabs,.btn-primary,.btn-print,.video-link,.flashcard-grid,.exercise-block .btn-check,.deco-top-left,.deco-bottom-right,.back-btn,.level-day-badge,#btn-complete,.cheer-card,.corner-top-left,.corner-bottom-right,.welcome-nav{display:none!important}
@@ -1285,40 +1298,46 @@ function renderErrors(){
 
 // === ACHIEVEMENTS PAGE ===
 function renderAchievements(){
-  const container=$('#page-achievements');
-  let html=`<h3 style="margin-bottom:16px">🎖️ Zoe的纪念章</h3><div class="badge-grid">`;
+  var container=document.getElementById('page-achievements');
+  var html='<h3 style="margin-bottom:16px;font-family:\'ZCOOL KuaiLe\',var(--font);font-size:1.3rem;color:#e8832a">🎖️ Zoe的纪念章</h3>';
+  var stageIcons=['🌊','🌲','🏔','🌟'];
+  var stageColors=['#2196f3','#4caf50','#9c27b0','#f08c4a'];
 
-  const stageNames=STAGES.map((s,i)=>STAGE_EMOJI[i]+' '+s);
-  stageNames.forEach((name,i)=>{
-    const earned=state.badges[i];
-    html+=`<div class="badge-card ${earned?'earned':'locked'}">
-      <div class="icon">${STAGE_EMOJI[i]}</div>
-      <div class="name">${name}</div>
-      <div class="cond">${earned?'✅ 已获得':'🔒 完成'+(i*10+1)+'-'+Math.min(i*10+10,40)+'关'}</div>
-    </div>`;
+  stageIcons.forEach(function(icon,i){
+    var startDay=i*10+1,endDay=Math.min(i*10+10,40);
+    var completed=0;
+    for(var d=startDay;d<=endDay;d++){if(state.completed[d])completed++;}
+    var allDone=completed>=10;
+
+    html+='<div class="stage-badge-card" style="border-color:'+stageColors[i]+'">';
+    // Big badge icon
+    html+='<div class="stage-badge-icon" style="'+(allDone?'animation:float 2s ease-in-out infinite;':'opacity:.4;filter:grayscale(1);')+'">'+icon+'</div>';
+    html+='<div class="stage-badge-name" style="color:'+stageColors[i]+'">'+STAGES[i]+'</div>';
+    // Star grid
+    html+='<div class="star-grid">';
+    for(var s=1;s<=10;s++){
+      var dayNum=startDay+s-1;
+      var lit=!!state.completed[dayNum];
+      html+='<span class="star-slot'+(lit?' lit':'')+'" title="Day '+dayNum+(lit?' ✅已完成':'')+'">'+(lit?'⭐':'☆')+'</span>';
+    }
+    html+='</div>';
+    html+='<div class="stage-badge-status" style="color:'+stageColors[i]+'">'+completed+'/10 颗星 '+(allDone?'🏆 篇章徽章已点亮！':'')+'</div>';
+    html+='</div>';
   });
 
-  html+=`<div class="badge-card ${state.longestStreak>=7?'earned':'locked'}">
-    <div class="icon">🔥</div><div class="name">坚持不懈</div>
-    <div class="cond">${state.longestStreak>=7?'✅ 最长连续探索'+state.longestStreak+'天':'🔒 连续7天探索'}</div>
-  </div>`;
-
-  html+=`<div class="badge-card ${state.points>=600?'earned':'locked'}">
-    <div class="icon">⭐</div><div class="name">星光收集家</div>
-    <div class="cond">${state.points>=600?'✅ 累计星光'+state.points+'颗':'🔒 累计收集600颗星光（当前'+state.points+'颗）'}</div>
-  </div>`;
-
-  html+=`</div>`;
+  // Streak and points
+  html+='<div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">';
+  html+='<div class="mini-badge'+(state.longestStreak>=7?' earned':'')+'" style="flex:1"><div style="font-size:2rem">🔥</div><div style="font-weight:700">坚持不懈</div><div style="font-size:.8rem;color:#999">'+(state.longestStreak>=7?'最长连续'+state.longestStreak+'天':'🔒 连续7天')+'</div></div>';
+  html+='<div class="mini-badge'+(state.points>=600?' earned':'')+'" style="flex:1"><div style="font-size:2rem">⭐</div><div style="font-weight:700">星光收集家</div><div style="font-size:.8rem;color:#999">'+(state.points>=600?'累计'+state.points+'颗':'🔒 累计600颗（当前'+state.points+'）')+'</div></div>';
+  html+='</div>';
 
   // Stats
-  html+=`<div class="quest-section" style="margin-top:16px">
-    <h3>📊 Zoe的旅程数据</h3>
-    <p>🗺️ 已完成探索：${Object.keys(state.completed).length} / 40 站</p>
-    <p>🌟 累计星光：${state.points} 颗</p>
-    <p>🔥 最长连续探索：${state.longestStreak} 天</p>
-    <p>💭 成长印记：${Object.values(state.errors).flat().length} 个</p>
-    <p>🎖️ 获得纪念章：${state.badges.filter(b=>b).length} / 4 枚</p>
-  </div>`;
+  html+='<div class="quest-section" style="margin-top:16px"><h3>📊 Zoe的旅程数据</h3>';
+  html+='<p>🗺️ 已完成探索：<b>'+Object.keys(state.completed).length+'</b> / 40 站</p>';
+  html+='<p>🌟 累计星光：<b>'+state.points+'</b> 颗</p>';
+  html+='<p>🔥 最长连续：<b>'+state.longestStreak+'</b> 天</p>';
+  html+='<p>💭 成长印记：<b>'+Object.values(state.errors).flat().length+'</b> 个</p>';
+  html+='</div>';
 
   container.innerHTML=html;
 }
