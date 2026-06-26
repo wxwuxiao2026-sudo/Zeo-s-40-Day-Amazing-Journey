@@ -1462,10 +1462,18 @@ function showWelcome(){
 
 // === INIT ===
 function init(){
-  // URL reset: add ?reset to the URL to clear all progress
+  // ?reset = clear ALL progress (use with caution)
   if(location.search.includes('reset')){
-    localStorage.removeItem('studyquest40');
-    state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+    if(confirm('⚠️ 这将清除Zoe的所有学习进度（星光、纪念章、完成记录），确定吗？')){
+      localStorage.removeItem('studyquest40');
+      state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+      saveState();
+    }
+    history.replaceState({},'',location.pathname);
+  }
+  // ?welcome = just show the welcome letter again (does NOT clear progress)
+  if(location.search.includes('welcome')){
+    state.seenIntro=false;
     saveState();
     history.replaceState({},'',location.pathname);
   }
