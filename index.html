@@ -868,8 +868,8 @@ function openLevel(day){
       html+=`<div class="exercise-block" id="ex-${i}">`;
       html+=`<div class="q"><span class="subj ${subjCls}">${subjName}</span>${question}</div>`;
 
+      const expl=(explanation||'').replace(/'/g,'');
       if(type==='choice'){
-        // options stored as pipe-separated string: "A|B|C|D"
         const opts=optsOrAns.split('|');
         const correctIdx=typeof correct==='number'?correct:parseInt(correct);
         html+=`<div class="opts">`;
@@ -877,18 +877,18 @@ function openLevel(day){
           html+=`<label><input type="radio" name="q${i}" value="${oi}" ${prevResult&&prevResult.userAnswer==oi?'checked':''}>${opt}</label>`;
         });
         html+=`</div>`;
-        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'choice',${correctIdx},'${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'choice',${correctIdx},'${expl}')">✅ 提交</button>`;
       }else if(type==='fill'){
         html+=`<input type="text" id="fill-${i}" placeholder="输入你的答案..." value="${prevResult?prevResult.userAnswer:''}">`;
-        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'fill','${(optsOrAns+'').replace(/'/g,"\\'")}','${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'fill','${(optsOrAns+'').replace(/'/g,'')}','${expl}')">✅ 提交</button>`;
       }else if(type==='truefalse'){
         const correctIsTrue=correct==='对'||correct===true||correct==='true';
         html+=`<div class="opts"><label><input type="radio" name="q${i}" value="对">✅ 对</label><label><input type="radio" name="q${i}" value="错">❌ 错</label></div>`;
-        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'truefalse',${correctIsTrue},'${explanation.replace(/'/g,"\\'")}')">✅ 提交</button>`;
+        html+=`<button class="btn-check submit" onclick="checkAnswer(${i},'truefalse',${correctIsTrue},'${expl}')">✅ 提交</button>`;
       }
 
       html+=`<button class="btn-check retry" onclick="retryQuestion(${i})" style="display:none">🔄 重做</button>`;
-      html+=`<div class="feedback" id="fb-${i}">${explanation}</div>`;
+      html+=`<div class="feedback" id="fb-${i}">${expl||''}</div>`;
       html+=`</div>`;
 
       // Initialize state
