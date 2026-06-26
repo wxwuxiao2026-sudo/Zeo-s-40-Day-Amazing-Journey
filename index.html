@@ -101,12 +101,15 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
   .quest-section{box-shadow:none;border:1px solid #ddd;break-inside:avoid;margin-bottom:10px;padding:12px}
   .quest-section h3{font-size:13pt;margin-bottom:6px;color:#333}
   .quest-section h3 .emoji,.quest-section h3 .arrow{display:none}
-  .exercise-block{border:none;padding:4px 0;margin:2px 0;break-inside:avoid}
-  .exercise-block .q{font-size:10pt;margin-bottom:2px}
+  .exercise-block{border:1px solid #eee;padding:8px;margin:4px 0;break-inside:avoid}
+  .exercise-block .q{font-size:10pt;margin-bottom:4px}
   .exercise-block .q .subj{display:inline;font-size:8pt;padding:1px 4px;border-radius:3px}
-  .exercise-block .opts,.exercise-block input[type=text],.exercise-block .btn-check,.exercise-block .feedback{display:none!important}
+  .exercise-block .opts label{font-size:9pt;padding:2px 6px;display:block}
+  .exercise-block input[type=text]{border:1px solid #ccc;padding:4px 8px;font-size:10pt;width:80%}
+  .exercise-block .btn-check,.exercise-block .feedback{display:none!important}
   .tb-content{display:block!important;max-height:none!important;border:none!important;background:#fff!important;font-size:10pt}
-  h2{font-size:14pt;margin-bottom:8px}
+  h2{font-size:14pt;margin-bottom:8px;text-align:center}
+  h2::before{content:'✨ Zoe的40天奇妙旅程 · ';font-size:10pt;color:#999;display:block;font-weight:400}
   @page{margin:1.5cm}
   .no-print{display:none!important}
 }
@@ -1000,7 +1003,7 @@ function openLevel(day){
     lv.off.forEach((ot,oi)=>{
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
-    html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本节课文资料</button></div>`;
+    html+=`<button class="btn-print" onclick="window.print()">🖨️ 打印本日学习资料</button></div>`;
   }
 
   // Complete button
