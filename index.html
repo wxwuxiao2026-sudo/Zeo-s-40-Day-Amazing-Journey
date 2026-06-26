@@ -962,7 +962,7 @@ function openLevel(day){
   setTimeout(function(){tr.remove();},5000);
   }catch(e){
     var c2=document.getElementById('page-level');
-    if(c2)c2.innerHTML='<div style=\"padding:40px;text-align:center;color:red\"><b>严重错误</b><br>'+e.message+'<br>Trace:'+DBG+'<br><br><button onclick=\"navigateTo(\\'map\\')\">← 返回地图</button></div>';
+    if(c2)c2.innerHTML='<div style=\"padding:40px;text-align:center;color:red\"><b>严重错误</b><br>'+e.message+'<br>Trace:'+DBG+'</div>';
     showPage('level');
   }
 }
