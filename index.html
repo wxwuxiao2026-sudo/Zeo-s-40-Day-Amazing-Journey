@@ -733,17 +733,14 @@ function importProgress(e){
 
 // === NAVIGATION ===
 function showPage(name){
-  $$('.page').forEach(p=>p.classList.remove('active'));
-  $$('nav.tabs button').forEach(b=>b.classList.remove('active'));
-  const page=$('#page-'+name);
+  var pages=document.querySelectorAll('.page');for(var i=0;i<pages.length;i++)pages[i].classList.remove('active');
+  var tabs=document.querySelectorAll('nav.tabs button');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  var page=document.getElementById('page-'+name);
   if(page)page.classList.add('active');
-  const tab=document.querySelector(`nav.tabs button[data-page="${name}"]`);
+  var tab=document.querySelector('nav.tabs button[data-page=\"'+name+'\"]');
   if(tab)tab.classList.add('active');
-  if(name==='level'){
-    $('#tab-level').style.display='block';
-  }else{
-    $('#tab-level').style.display=name==='level'?'block':'none';
-  }
+  var tl=document.getElementById('tab-level');
+  if(tl)tl.style.display=(name==='level')?'block':'none';
 }
 
 function navigateTo(page,levelId){
@@ -810,17 +807,22 @@ function renderMap(){
 
 // === LEVEL PAGE ===
 function openLevel(day){
-  currentLevel=LEVELS.find(l=>l.d===day);
-  if(!currentLevel)return;
+  var DBG='';
+  try{
+  DBG+='1.find ';
+  currentLevel=LEVELS.find(function(l){return l.d===day;});
+  if(!currentLevel){DBG+='NOT FOUND';document.getElementById('page-level').innerHTML='<h2>错误：找不到 Day '+day+'</h2>';return;}
   levelStartTime=Date.now();
+  DBG+='OK ';
 
   const lv=currentLevel;
   exerciseState={};
   state.currentDay=day;
   saveState();
 
-  const container=document.getElementById('page-level');
-  if(!container){alert('错误：找不到 page-level 元素');return;}
+  var container=document.getElementById('page-level');
+  if(!container){alert('错误：找不到 page-level');return;}
+  DBG+='2.container ';
   const stageEmoji=STAGE_EMOJI[lv.s];
   const done=isLevelDone(day);
   const saved=state.completed[day];
@@ -915,10 +917,12 @@ function openLevel(day){
     html+=`<div class="result-banner pass">✨ 已探索！星光：${saved.score}/${lv.q?lv.q.length*3+7:10}（目标10颗🌟）</div>`;
   }
 
+  DBG+='3.build ';
   try{
     container.innerHTML=html;
+    DBG+='4.render ';
   }catch(e){
-    container.innerHTML='<div style="padding:40px;text-align:center;color:red"><b>渲染出错</b><br>'+e.message+'<br><br><button onclick="navigateTo(\'map\')">← 返回地图</button></div>';
+    container.innerHTML='<div style="padding:40px;text-align:center;color:red"><b>渲染出错</b><br>'+e.message+'<br>Trace:'+DBG+'<br><br><button onclick="navigateTo(\'map\')">← 返回地图</button></div>';
     showPage('level');
     return;
   }
@@ -948,8 +952,19 @@ function openLevel(day){
   },100);
 
   showPage('level');
-  $('#tab-level').style.display='block';
+  var tl2=document.getElementById('tab-level');if(tl2)tl2.style.display='block';
   window.scrollTo(0,0);
+  // VISIBLE TRACE
+  var tr=document.createElement('div');
+  tr.style.cssText='position:fixed;bottom:4px;left:4px;background:#333;color:#0f0;padding:2px 8px;font-size:10px;z-index:9999;border-radius:4px;font-family:monospace';
+  tr.textContent='TRACE:'+DBG+'DONE';
+  document.body.appendChild(tr);
+  setTimeout(function(){tr.remove();},5000);
+  }catch(e){
+    var c2=document.getElementById('page-level');
+    if(c2)c2.innerHTML='<div style=\"padding:40px;text-align:center;color:red\"><b>严重错误</b><br>'+e.message+'<br>Trace:'+DBG+'<br><br><button onclick=\"navigateTo(\\'map\\')\">← 返回地图</button></div>';
+    showPage('level');
+  }
 }
 
 function checkAnswer(idx,type,correctAnswer,explanation){
