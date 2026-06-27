@@ -220,6 +220,14 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .demo-box .tip{color:#c47a3a;font-size:.85rem;margin-top:6px;padding:4px 8px;background:#fef9f2;border-radius:6px;display:block}
 .demo-box .canada{color:#5c6bc0;font-size:.8rem;margin-top:4px;padding:4px 8px;background:#f0f4ff;border-radius:6px;display:block}
 
+/* Textbook image */
+.tb-img-wrap{text-align:center;margin:12px 0 4px;position:relative}
+.tb-img-wrap .tb-label{display:inline-block;font-size:.75rem;color:#999;margin-bottom:6px;padding:2px 10px;background:#fef9f2;border-radius:10px;border:1px dashed #e8d8c0}
+.tb-img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);cursor:pointer;transition:all .25s;border:1px solid #e8d8b8}
+.tb-img:hover{box-shadow:0 4px 20px rgba(0,0,0,.15);transform:scale(1.02)}
+.tb-img-zoom{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:94vw;max-height:94vh;z-index:9999;box-shadow:0 8px 40px rgba(0,0,0,.35);border-radius:4px;cursor:zoom-out}
+.tb-img-zoom:hover{transform:translate(-50%,-50%) scale(1)}
+
 /* Vertical calculation */
 .vert-calc{display:inline-block;text-align:right;font-family:'Courier New','Consolas',monospace;line-height:1.7;padding:10px 14px;background:#fdfaf5;border-radius:8px;border:1px solid #e8d8b8;margin:6px 0;min-width:180px}
 .vrow{display:block;white-space:pre;letter-spacing:2px}
@@ -720,6 +728,13 @@ function openLevel(day){
     html+=`<div class="demo-box">`;
     lv.demo.forEach(function(d){html+=d;});
     html+=renderFormula(lv.d);
+    if(lv.img){html+=`<div class="tb-img-wrap"><span class="tb-label">📖 课本原图</span><br><img src="${lv.img}" alt="课本例题" class="tb-img" onclick="var e=event.target;e.classList.toggle('tb-img-zoom')" title="点击放大"></div>`;}
+    html+=`</div></div>`;
+  }else if(lv.img){
+    // Days with textbook image but no programmatic demo (Day 8+)
+    html+=`<div class="quest-section"><h3 class="sec-title" style="--c1:#d84315;--c2:#e8832a"><span class="emoji">📝</span>例题示范</h3>`;
+    html+=`<div class="demo-box">`;
+    html+=`<div class="tb-img-wrap"><span class="tb-label">📖 课本原图</span><br><img src="${lv.img}" alt="课本例题" class="tb-img" onclick="var e=event.target;e.classList.toggle('tb-img-zoom')" title="点击放大"></div>`;
     html+=`</div></div>`;
   }
 

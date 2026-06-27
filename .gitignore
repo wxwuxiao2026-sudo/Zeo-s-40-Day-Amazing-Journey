@@ -1,0 +1,9 @@
+# Textbook PDFs (source only, not for deployment)
+*.pdf
+
+# Python scripts
+*.py
+
+# OS files
+.DS_Store
+Thumbs.db
