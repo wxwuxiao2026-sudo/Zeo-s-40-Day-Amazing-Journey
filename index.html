@@ -211,6 +211,15 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .map-header{text-align:center;margin-bottom:10px;font-family:'ZCOOL KuaiLe',var(--font);font-size:1.15rem;color:#e8832a;letter-spacing:1px;animation:welcomeIn .6s ease-out}
 .map-footer{text-align:center;margin-top:16px;font-family:'ZCOOL KuaiLe',var(--font);font-size:1.2rem;background:linear-gradient(135deg,#e8783e,#f9a825);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;font-weight:700;animation:welcomeIn .8s ease-out}
 
+/* Demo section */
+.demo-box{background:linear-gradient(180deg,#fefdf8,#fdf9f0);border:1px solid #e8d8b8;border-radius:12px;padding:14px 16px;margin:10px 0;font-size:.9rem;line-height:2;color:#4a3525;font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',var(--font)}
+.demo-box .demo-title{font-family:'ZCOOL KuaiLe',var(--font);font-size:1.05rem;color:#e8832a;margin-bottom:8px;display:block}
+.demo-box .step{display:block;padding:2px 0;padding-left:8px;border-left:3px solid transparent;margin:2px 0}
+.demo-box .step.hl{border-left-color:#e8832a;background:rgba(232,131,42,.05);font-weight:600}
+.demo-box .formula{font-family:'Courier New',monospace;background:#f8f4ec;padding:4px 10px;border-radius:6px;display:inline-block;margin:4px 0;white-space:pre;line-height:1.6;font-size:.85rem}
+.demo-box .tip{color:#c47a3a;font-size:.85rem;margin-top:6px;padding:4px 8px;background:#fef9f2;border-radius:6px;display:block}
+.demo-box .canada{color:#5c6bc0;font-size:.8rem;margin-top:4px;padding:4px 8px;background:#f0f4ff;border-radius:6px;display:block}
+
 /* Feedback */
 .mood-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .mood-btn{border:2px solid #e8d8c0;background:#fff;border-radius:20px;padding:8px 14px;font-size:.9rem;cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -640,6 +649,14 @@ function openLevel(day){
     html+=`<h3 class="sec-title sec-tb" style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">📚</span>课本内容 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
     html+=`<div class="tb-content" style="display:none;font-size:.9rem;line-height:2;color:#4a3525;padding:8px 12px;background:#fdfaf5;border-radius:10px;border:1px dashed #e8d8c0;max-height:400px;overflow-y:auto">`;
     lv.tb.forEach(function(t){html+=t+'<br>';});
+    html+=`</div></div>`;
+  }
+
+  // Demo
+  if(lv.demo&&lv.demo.length){
+    html+=`<div class="quest-section"><h3 class="sec-title" style="--c1:#d84315;--c2:#e8832a"><span class="emoji">📝</span>例题示范</h3>`;
+    html+=`<div class="demo-box">`;
+    lv.demo.forEach(function(d){html+=d;});
     html+=`</div></div>`;
   }
 
