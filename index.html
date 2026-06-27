@@ -833,7 +833,7 @@ function openLevel(day){
   html+=`<div class="mood-picker" id="moodPicker">`;
   ['😍很喜欢','😊还不错','😐有点难','🤩超有趣','😴好累呀'].forEach(function(m,i){
     var sel=saved&&saved.feedback&&saved.feedback.mood===i;
-    html+=`<button class="mood-btn'+(sel?' active':'')+'" onclick="setMood('+i+')">'+m+'</button>`;
+    html+='<button class="mood-btn'+(sel?' active':'')+'" onclick="setMood('+i+')">'+m+'</button>';
   });
   html+=`</div>`;
   html+=`<textarea class="fb-input" id="fbNote" placeholder="今天学到了什么？还有什么想说的？(选填)">`+(saved&&saved.feedback?saved.feedback.note||'':'')+`</textarea>`;
