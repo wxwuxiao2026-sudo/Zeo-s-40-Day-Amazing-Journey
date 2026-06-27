@@ -635,28 +635,20 @@ function renderFormula(day){
     F+='<div class=\"vnote\" style=\"text-align:center;margin-top:4px\">因数共2+1=3位小数 · 从右数3位点小数点 · 估算：3×6=18 ✓</div>';
     F+='</div>';
   }else if(day===5){
-    F='<div class=\"vert-calc\" style=\"padding:16px 20px\">';
-    F+='<div style=\"font-size:.85rem;color:#e8832a;margin-bottom:10px;font-weight:600\">0.56有2位小数 → 除数和被除数的小数点同时右移2位 → 变成 728÷56</div>';
-    // Use a clean pre-formatted text block with absolute monospace alignment
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:16px 20px;border-radius:6px;border:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='          1  3</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='      ┌───────</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='   56 │ 7  2  8</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='        5  6</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='        ───</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='        1  6  8</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='        1  6  8</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;overflow-x:auto\">';
-    F+='        ───</div>';
-    F+='<div style=\"font-family:\'Courier New\',\'SimSun\',monospace;font-size:18px;line-height:1.9;color:#333;letter-spacing:3px;white-space:pre;background:#fffef9;padding:0 16px 16px 20px;border-left:1px solid #e8d8b8;border-right:1px solid #e8d8b8;border-bottom:1px solid #e8d8b8;border-radius:0 0 6px 6px;overflow-x:auto\">';
-    F+='           0</div>';
-    F+='<div style=\"font-size:.8rem;color:#666;margin-top:10px;line-height:2;padding:6px 10px;background:#fef9f2;border-radius:6px\"><b>第①步：</b>看被除数前两位 72，56×1=56，72−56=16<br><b>第②步：</b>把8落下来变成 168，56×3=168，168−168=0<br><b>结果：</b>商是 <b>13</b>（1写在十位上，3写在个位上）</div>';
+    F='<div class=\"vert-calc\">';
+    F+='<div style=\"font-size:.85rem;color:#e8832a;margin-bottom:8px;font-weight:600\">0.56有2位小数 → 除数和被除数的小数点同时右移2位 → 变成 728÷56</div>';
+    F+='<div style=\"text-align:center;font-family:Courier New,monospace;font-size:1.1rem;line-height:2.2;color:#333;padding:8px 0\">';
+    F+='        1  3<br>';
+    F+='    ┌──────<br>';
+    F+=' 56 ) 7  2  8<br>';
+    F+='      5  6<br>';
+    F+='      ────<br>';
+    F+='      1  6  8<br>';
+    F+='      1  6  8<br>';
+    F+='      ────<br>';
+    F+='         0';
+    F+='</div>';
+    F+='<div style=\"font-size:.8rem;color:#666;margin-top:8px;line-height:2;padding:6px 10px;background:#fef9f2;border-radius:6px\"><b>第①步：</b>看被除数前两位 72，56×1=56，72−56=16<br><b>第②步：</b>把8落下来变成 168，56×3=168，168−168=0<br><b>结果：</b>商是 <b>13</b>（1写在十位上，3写在个位上）</div>';
     F+='</div>';
   }
   return F;
