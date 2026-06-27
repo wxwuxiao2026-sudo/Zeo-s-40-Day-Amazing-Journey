@@ -220,6 +220,15 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .demo-box .tip{color:#c47a3a;font-size:.85rem;margin-top:6px;padding:4px 8px;background:#fef9f2;border-radius:6px;display:block}
 .demo-box .canada{color:#5c6bc0;font-size:.8rem;margin-top:4px;padding:4px 8px;background:#f0f4ff;border-radius:6px;display:block}
 
+/* Vertical calculation */
+.vert-calc{display:inline-block;text-align:right;font-family:'Courier New','Consolas',monospace;line-height:1.7;padding:10px 14px;background:#fdfaf5;border-radius:8px;border:1px solid #e8d8b8;margin:6px 0;min-width:180px}
+.vrow{display:block;white-space:pre;letter-spacing:2px}
+.vrow.carry{color:#e8832a;font-size:.7rem;letter-spacing:1px}
+.vrow.num{color:#333;font-size:1.05rem}
+.vrow.ans{color:#e8832a;font-weight:700;font-size:1.1rem}
+.vline{border-top:1.5px solid #999;margin:3px 0}
+.vnote{color:#888;font-size:.65rem;display:block;margin-top:1px}
+
 /* Feedback */
 .mood-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .mood-btn{border:2px solid #e8d8c0;background:#fff;border-radius:20px;padding:7px 12px;font-size:.85rem;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:var(--font)}
@@ -600,6 +609,43 @@ function genKnowledge(lv){
   return parts.join('<br>');
 }
 
+// === FORMULA RENDERER ===
+function renderFormula(day){
+  var F='';
+  if(day===1){
+    F='<div class=\"vert-calc\">';
+    F+='<div class=\"vrow carry\">        4 2</div>';
+    F+='<div class=\"vrow num\">     2 3 6</div>';
+    F+='<div class=\"vrow num\">  ×   4 7</div>';
+    F+='<div class=\"vline\"></div>';
+    F+='<div class=\"vrow num\">   1 6 5 2  <span class=\"vnote\">← 236×7</span></div>';
+    F+='<div class=\"vrow num\">   9 4 4    <span class=\"vnote\">← 236×4（十位对齐）</span></div>';
+    F+='<div class=\"vline\"></div>';
+    F+='<div class=\"vrow ans\"> 1 1 0 9 2</div>';
+    F+='</div>';
+  }else if(day===4){
+    F='<div class=\"vert-calc\">';
+    F+='<div class=\"vrow num\">    3 . 2 4</div>';
+    F+='<div class=\"vrow num\"> ×  5 . 6</div>';
+    F+='<div class=\"vline\"></div>';
+    F+='<div class=\"vrow num\">  1 9 4 4  <span class=\"vnote\">← 324×6</span></div>';
+    F+='<div class=\"vrow num\">1 6 2 0    <span class=\"vnote\">← 324×5（十位对齐）</span></div>';
+    F+='<div class=\"vline\"></div>';
+    F+='<div class=\"vrow ans\">1 8 . 1 4 4</div>';
+    F+='<div class=\"vnote\" style=\"text-align:center;margin-top:4px\">因数共2+1=3位小数 · 从右数3位点小数点 · 估算：3×6=18 ✓</div>';
+    F+='</div>';
+  }else if(day===5){
+    F='<div class=\"vert-calc\" style=\"text-align:center\">';
+    F+='<div class=\"vrow num\" style=\"text-align:center\">0.56 ) 7.28</div>';
+    F+='<div class=\"vrow\" style=\"color:#e8832a;text-align:center;font-size:.85rem\">↓×100   ↓×100（同步移位）</div>';
+    F+='<div class=\"vrow num\" style=\"text-align:center\">56 ) 728</div>';
+    F+='<div class=\"vrow ans\" style=\"text-align:center;font-size:1.2rem\">= 13</div>';
+    F+='<div class=\"vnote\" style=\"text-align:center\">除数2位小数→小数点同时右移2位→变成整数除法</div>';
+    F+='</div>';
+  }
+  return F;
+}
+
 // === LEVEL PAGE ===
 function openLevel(day){
   try{
@@ -657,6 +703,7 @@ function openLevel(day){
     html+=`<div class="quest-section"><h3 class="sec-title" style="--c1:#d84315;--c2:#e8832a"><span class="emoji">📝</span>例题示范</h3>`;
     html+=`<div class="demo-box">`;
     lv.demo.forEach(function(d){html+=d;});
+    html+=renderFormula(lv.d);
     html+=`</div></div>`;
   }
 
