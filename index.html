@@ -859,6 +859,9 @@ function openLevel(day){
 
   try{
     container.innerHTML=html;
+    // Sync _tempMood with previously saved feedback
+    var prevFb=state.completed[day]&&state.completed[day].feedback;
+    _tempMood=(prevFb&&prevFb.mood!==null&&prevFb.mood!==undefined)?prevFb.mood:null;
   }catch(e){
     container.innerHTML='<div style=\"padding:40px;text-align:center;color:red\"><b>渲染出错</b><br>'+e.message+'</div>';
     showPage('level');
@@ -1262,32 +1265,100 @@ function renderParent(){
     html+=`</table></div>`;
   }
 
-  // === SECTION 4.5: Feedback Summary ===
+  // === SECTION 4.5: Feedback / Mood Chart ===
   var fbDays=completed.filter(function(e){return e[1].feedback;});
   if(fbDays.length>0){
-    html+=`<div class="quest-section"><h3>💬 Zoe的学习心情</h3><div style="font-size:.9rem;line-height:2">`;
     var moods=['😍很喜欢','😊还不错','😐有点难','🤩超有趣','😴好累呀'];
+    var moodColors=['#e91e63','#4caf50','#ff9800','#2196f3','#9e9e9e'];
+    var moodValues=[5,3,2,4,1]; // numeric score for trend
     var moodCount=[0,0,0,0,0];
     var totalFb=0;
     fbDays.forEach(function(e){
       var fb=e[1].feedback;
       if(fb.mood!==null&&fb.mood!==undefined){moodCount[fb.mood]++;totalFb++;}
     });
+
+    html+=`<div class="quest-section"><h3>💬 Zoe的学习心情</h3>`;
+    html+=`<div style="font-size:.9rem;line-height:2">`;
+
+    // --- Mood Distribution Bar Chart ---
     if(totalFb>0){
-      html+=`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">`;
+      html+=`<div style="margin-bottom:14px">`;
+      html+=`<div style="font-size:.8rem;color:#999;margin-bottom:6px">📊 心情分布（共${totalFb}天反馈）</div>`;
       moods.forEach(function(m,i){
-        var pct=totalFb>0?Math.round(moodCount[i]/totalFb*100):0;
-        html+=`<span style="font-size:.85rem;background:#fef9f2;padding:4px 10px;border-radius:12px">${m} <b>${moodCount[i]}</b>次</span>`;
+        var pct=Math.round(moodCount[i]/totalFb*100);
+        var w=Math.max(2,pct); // bar width percentage
+        html+=`<div style="display:flex;align-items:center;gap:6px;margin:3px 0">`;
+        html+=`<span style="width:80px;font-size:.8rem;text-align:right;flex-shrink:0">${m}</span>`;
+        html+=`<div style="flex:1;background:#f0ece4;border-radius:6px;height:20px;overflow:hidden;position:relative">`;
+        html+=`<div style="position:absolute;left:0;top:0;height:100%;width:${w}%;background:${moodColors[i]};border-radius:6px;transition:width .6s ease;min-width:${moodCount[i]>0?'18px':'0'}"></div>`;
+        html+=`<span style="position:absolute;left:${w>15?w/2-3:w+2}%;top:50%;transform:translateY(-50%);font-size:.7rem;font-weight:700;color:${w>15?'#fff':moodColors[i]};white-space:nowrap">${moodCount[i]}次 ${pct}%</span>`;
+        html+=`</div></div>`;
       });
       html+=`</div>`;
     }
+
+    // --- Mood Trend Line Chart (last 10 feedbacks) ---
+    if(fbDays.length>=2){
+      // Sort fbDays by day number and take last 10
+      var trendData=fbDays.slice(-10);
+      // Build SVG polyline
+      var svgW=280,svgH=70,padL=28,padR=12,padT=10,padB=16;
+      var plotW=svgW-padL-padR,plotH=svgH-padT-padB;
+      var pts=[];
+      trendData.forEach(function(e,i){
+        var fb=e[1].feedback;
+        if(fb.mood!==null&&fb.mood!==undefined){
+          var x=padL+Math.round(i/Math.max(trendData.length-1,1)*plotW);
+          var score=moodValues[fb.mood]||3;
+          var y=padT+Math.round((1-(score-1)/4)*plotH);
+          pts.push(x+','+y);
+        }
+      });
+      if(pts.length>=2){
+        html+=`<div style="margin-bottom:10px">`;
+        html+=`<div style="font-size:.8rem;color:#999;margin-bottom:4px">📈 心情趋势（最近${trendData.length}天）</div>`;
+        html+=`<svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="background:#fefdf8;border-radius:8px;border:1px solid #e8d8b8;display:block">`;
+        // Grid lines
+        for(var gy=1;gy<=4;gy++){
+          var yy=padT+Math.round((1-(gy)/4)*plotH);
+          html+=`<line x1="${padL}" y1="${yy}" x2="${svgW-padR}" y2="${yy}" stroke="#e8d8c0" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+        }
+        // Y axis labels
+        var yLabels=['😍好','🙂','😐','😟','😴累'];
+        yLabels.forEach(function(l,li){
+          html+=`<text x="${padL-4}" y="${padT+Math.round(li/4*plotH)+4}" font-size="7" fill="#999" text-anchor="end">${l}</text>`;
+        });
+        // Polyline
+        html+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#e8832a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+        // Dots + day labels
+        trendData.forEach(function(e,i){
+          var fb=e[1].feedback;
+          if(fb.mood!==null&&fb.mood!==undefined){
+            var x=padL+Math.round(i/Math.max(trendData.length-1,1)*plotW);
+            var score=moodValues[fb.mood]||3;
+            var y=padT+Math.round((1-(score-1)/4)*plotH);
+            html+=`<circle cx="${x}" cy="${y}" r="3" fill="#e8832a" stroke="#fff" stroke-width="1"/>`;
+            html+=`<text x="${x}" y="${svgH-3}" font-size="6" fill="#999" text-anchor="middle">D${e[0]}</text>`;
+          }
+        });
+        html+=`</svg></div>`;
+      }
+    }
+
+    // --- Recent 3 feedback notes ---
     var recentFb=fbDays.slice(-3).reverse();
+    html+=`<div style="font-size:.8rem;color:#999;margin-bottom:2px">📝 最近留言</div>`;
+    var hasNotes=false;
     recentFb.forEach(function(e){
       var fb=e[1].feedback;
       if(fb.mood!==null&&fb.mood!==undefined){
         html+=`<p style="margin:2px 0;font-size:.85rem">📅 Day ${e[0]}：${moods[fb.mood]}`+(fb.note?' —— "'+fb.note+'"':'')+'</p>';
+        if(fb.note)hasNotes=true;
       }
     });
+    if(!hasNotes)html+=`<p style="font-size:.8rem;color:#ccc">还没有留言记录，鼓励Zoe多写几句吧～</p>`;
+
     html+=`</div></div>`;
   }
 
