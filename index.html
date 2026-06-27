@@ -178,10 +178,10 @@ main{flex:1;padding:16px;max-width:900px;margin:0 auto;width:100%}
 .welcome-nav button.ghost{background:transparent;color:#bbb;font-size:.8rem;text-decoration:underline;box-shadow:none;min-height:36px;display:block;margin:8px auto 0}
 
 /* Corner decorations */
-.deco-top-left{position:absolute;top:6px;left:-38px;width:52px;height:auto;opacity:.85;mix-blend-mode:multiply;filter:brightness(1.3);pointer-events:auto;z-index:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
-.deco-bottom-right{position:absolute;bottom:6px;right:-38px;width:79px;height:auto;opacity:.85;mix-blend-mode:multiply;pointer-events:auto;z-index:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.deco-top-left{position:absolute;top:6px;right:6px;width:52px;height:auto;opacity:.85;mix-blend-mode:multiply;filter:brightness(1.3);pointer-events:auto;z-index:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.deco-bottom-right{position:absolute;bottom:6px;right:6px;width:79px;height:auto;opacity:.85;mix-blend-mode:multiply;pointer-events:auto;z-index:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
 .deco-top-left:hover,.deco-bottom-right:hover{transform:scale(1.3)}
-@media(min-width:768px){.deco-top-left{width:61px;left:-44px;filter:brightness(1.3)}.deco-bottom-right{width:94px;right:-44px}}
+@media(min-width:768px){.deco-top-left{width:61px;right:8px;filter:brightness(1.3)}.deco-bottom-right{width:94px;right:8px}}
 
 /* Playful enhancements */
 .quest-section{border-radius:18px;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s}
@@ -701,7 +701,7 @@ function openLevel(day){
 
   // Offline tasks
   if(lv.off&&lv.off.length>0){
-    html+=`<div class="quest-section no-print" style="position:relative"><img src="下.jpg" class="deco-bottom-right" alt=""><h3 class="sec-title sec-off"><span class="emoji">📝</span>线下练习</h3>`;
+    html+=`<div class="quest-section no-print" style="position:relative"><h3 class="sec-title sec-off"><span class="emoji">📝</span>线下练习</h3>`;
     lv.off.forEach((ot,oi)=>{
       html+=`<div class="offline-item"><input type="checkbox" id="off-${oi}" onchange="updateOffline()" ${saved&&saved.offlineDone&&saved.offlineDone[oi]?'checked':''}><label for="off-${oi}"><b>${ot[0]}</b>：${ot[1]}</label></div>`;
     });
@@ -726,7 +726,7 @@ function openLevel(day){
 
   // Daily recommendation
   if(lv.rec&&lv.rec.length){
-    html+=`<div class="quest-section no-print">`;
+    html+=`<div class="quest-section no-print" style="position:relative"><img src="下.jpg" class="deco-bottom-right" alt="">`;
     html+=`<h3 class="sec-title sec-rec" style="cursor:pointer;user-select:none" onclick="var c=this.nextElementSibling;var show=c.style.display==='none';c.style.display=show?'block':'none';this.querySelector('.arrow').textContent=show?'▼':'▶'"><span class="emoji">🎬</span>今日推荐 <span class="arrow" style="font-size:.7rem;color:#999">▶</span></h3>`;
     html+=`<div style="display:none;font-size:.9rem;line-height:2;color:#5a4a3a;padding:8px 12px;background:#fdfaf5;border-radius:10px">`;
     lv.rec.forEach(function(r){html+='<a href="'+r.u+'" target="_blank" rel="noopener" class="video-link">📺 '+r.t+'</a>';});
